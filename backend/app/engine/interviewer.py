@@ -246,6 +246,27 @@ class PromptInterviewer:
             return True
         return False
 
+    def _should_derive_architectural_topics(
+        self,
+        analysis: RequirementAnalysis,
+        input_text: str | None = None,
+    ) -> bool:
+        """Check if an under-specified prompt should have architectural decisions derived."""
+        if analysis.missing_information:
+            return False
+        if self._is_exhaustively_specified(analysis):
+            return False
+
+        # Only derive for broad application/system build prompts
+        text = ((input_text or "") + " " + analysis.intent).lower()
+        app_keywords = {
+            "app", "application", "website", "site", "web", "platform",
+            "system", "dashboard", "portal", "service", "tool", "clone",
+            "fullstack", "full-stack", "frontend", "backend", "chat", "todo"
+        }
+        words = set(re.findall(r"\b[a-zA-Z0-9_-]+\b", text))
+        return bool(words & app_keywords)
+
     def _derive_missing_architectural_topics(
         self,
         analysis: RequirementAnalysis,
@@ -353,7 +374,7 @@ class PromptInterviewer:
     ) -> list[InterviewQuestion]:
         """Generate targeted clarification questions for unresolved missing information."""
         missing_topics = self._filter_material_missing_topics(analysis, already_asked)
-        if not missing_topics and not self._is_exhaustively_specified(analysis):
+        if not missing_topics and self._should_derive_architectural_topics(analysis, input_text):
             missing_topics = self._derive_missing_architectural_topics(analysis, already_asked)
 
         if not missing_topics:
@@ -453,8 +474,8 @@ class PromptInterviewer:
 
         material_topics = self._filter_material_missing_topics(analysis, already_asked)
 
-        # If analysis did not yield material topics, check if input is exhaustively specified
-        if not material_topics and not self._is_exhaustively_specified(analysis):
+        # If analysis did not yield material topics, check if input warrants architectural decisions
+        if not material_topics and self._should_derive_architectural_topics(analysis, input_text):
             material_topics = self._derive_missing_architectural_topics(analysis, already_asked)
 
         if not material_topics:

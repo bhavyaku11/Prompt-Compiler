@@ -85,6 +85,13 @@ backend/scratch/
 *~
 *.tmp
 *.suo
-*.ntvs*
-*.njsproj
-*.sln
+# Agent CLIs & Skills Tooling
+.aider-desk/
+.kiro/
+.pi/
+.qoder/
+.qwen/
+.windsurf/
+skills-lock.json
+skills/
+

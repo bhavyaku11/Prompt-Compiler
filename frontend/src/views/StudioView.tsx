@@ -99,39 +99,6 @@ export function StudioView() {
     return () => clearTimeout(timer);
   }, [isLoaded]);
 
-  // Periodic health check of local engine
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const health = await getHealth();
-        setIsBackendHealthy(health.status === 'ok');
-      } catch {
-        setIsBackendHealthy(false);
-      }
-    };
-    const interval = setInterval(checkHealth, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Listen for backend 401 Unauthorized / session expiration events
-  useEffect(() => {
-    const handleAuthRequired = (e: Event) => {
-      const customEvent = e as CustomEvent<{ status: number; message: string }>;
-      setError(customEvent.detail?.message || 'Authentication required or session expired. Please sign in again.');
-    };
-    window.addEventListener('prompt-compiler:auth-required', handleAuthRequired);
-    return () => {
-      window.removeEventListener('prompt-compiler:auth-required', handleAuthRequired);
-    };
-  }, []);
-
-  // Authentication check
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      navigate('/auth', { replace: true });
-    }
-  }, [isLoaded, isSignedIn, navigate]);
-
   // Load backend data (presets, projects, health)
   const loadInitialData = useCallback(async () => {
     try {
@@ -165,6 +132,51 @@ export function StudioView() {
       // general error
     }
   }, [targetAgent]);
+
+  // Periodic health check of local engine
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const health = await getHealth();
+        setIsBackendHealthy(health.status === 'ok');
+      } catch {
+        setIsBackendHealthy(false);
+      }
+    };
+    const interval = setInterval(checkHealth, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Listen for backend-ready events (e.g. from Tauri sidecar or port probing)
+  useEffect(() => {
+    const handleBackendReady = () => {
+      setIsBackendHealthy(true);
+      void loadInitialData();
+    };
+    window.addEventListener('prompt-compiler:backend-ready', handleBackendReady);
+    return () => {
+      window.removeEventListener('prompt-compiler:backend-ready', handleBackendReady);
+    };
+  }, [loadInitialData]);
+
+  // Listen for backend 401 Unauthorized / session expiration events
+  useEffect(() => {
+    const handleAuthRequired = (e: Event) => {
+      const customEvent = e as CustomEvent<{ status: number; message: string }>;
+      setError(customEvent.detail?.message || 'Authentication required or session expired. Please sign in again.');
+    };
+    window.addEventListener('prompt-compiler:auth-required', handleAuthRequired);
+    return () => {
+      window.removeEventListener('prompt-compiler:auth-required', handleAuthRequired);
+    };
+  }, []);
+
+  // Authentication check
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      navigate('/auth', { replace: true });
+    }
+  }, [isLoaded, isSignedIn, navigate]);
 
   useEffect(() => {
     let isMounted = true;

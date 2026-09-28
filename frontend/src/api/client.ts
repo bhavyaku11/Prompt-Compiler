@@ -29,8 +29,10 @@ declare global {
 }
 
 export type AuthTokenGetter = () => Promise<string | null>;
+export type BackendUrlResolver = () => Promise<string | null>;
 
 let authTokenGetter: AuthTokenGetter | null = null;
+let backendUrlResolver: BackendUrlResolver | null = null;
 
 export function setAuthTokenGetter(getter: AuthTokenGetter | null): void {
   authTokenGetter = getter;
@@ -40,18 +42,56 @@ export function getAuthTokenGetter(): AuthTokenGetter | null {
   return authTokenGetter;
 }
 
+export function setBackendUrlResolver(resolver: BackendUrlResolver | null): void {
+  backendUrlResolver = resolver;
+}
+
+export function getBackendUrlResolver(): BackendUrlResolver | null {
+  return backendUrlResolver;
+}
+
 let customApiBaseUrl: string | null = null;
 
 export function setApiBaseUrl(url: string | null): void {
   customApiBaseUrl = url ? url.replace(/\/+$/, '') : null;
+  if (typeof window !== 'undefined') {
+    try {
+      if (customApiBaseUrl) {
+        sessionStorage.setItem('prompt_compiler_api_base', customApiBaseUrl);
+      } else {
+        sessionStorage.removeItem('prompt_compiler_api_base');
+      }
+    } catch {
+      // ignore storage access issues
+    }
+
+    if (customApiBaseUrl) {
+      window.dispatchEvent(
+        new CustomEvent('prompt-compiler:backend-ready', {
+          detail: customApiBaseUrl,
+        })
+      );
+    }
+  }
 }
 
 export function getApiBaseUrl(): string {
   if (customApiBaseUrl) {
     return customApiBaseUrl;
   }
-  if (typeof window !== 'undefined' && window.__PROMPT_COMPILER_API_BASE__) {
-    return window.__PROMPT_COMPILER_API_BASE__.replace(/\/+$/, '');
+  if (typeof window !== 'undefined') {
+    if (window.__PROMPT_COMPILER_API_BASE__) {
+      return window.__PROMPT_COMPILER_API_BASE__.replace(/\/+$/, '');
+    }
+    try {
+      const stored = sessionStorage.getItem('prompt_compiler_api_base');
+      if (stored) {
+        customApiBaseUrl = stored.replace(/\/+$/, '');
+        return customApiBaseUrl;
+      }
+    } catch {
+      // ignore storage access issues
+    }
   }
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, '');
@@ -59,8 +99,44 @@ export function getApiBaseUrl(): string {
   return '';
 }
 
+function isDesktopEnv(): boolean {
+  if (typeof window === 'undefined') return false;
+  return (
+    Boolean((window as unknown as { isTauri?: boolean }).isTauri) ||
+    '__TAURI_INTERNALS__' in window ||
+    '__TAURI__' in window
+  );
+}
+
 export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const base = getApiBaseUrl();
+  let base = getApiBaseUrl();
+
+  // If in desktop environment and base URL is not yet established, attempt dynamic resolution
+  if (!base && isDesktopEnv()) {
+    if (backendUrlResolver) {
+      try {
+        const resolved = await backendUrlResolver();
+        if (resolved) {
+          base = resolved;
+        }
+      } catch (err) {
+        console.warn('[client] Failed to dynamically resolve backend URL:', err);
+      }
+    }
+    // Re-check after resolver attempt
+    if (!base) {
+      base = getApiBaseUrl();
+    }
+  }
+
+  // In desktop app, never execute relative fetch without an active base URL (causes WebKit pattern error)
+  if (!base && isDesktopEnv()) {
+    throw new ApiError(
+      503,
+      'Local Engine is starting up or unreachable. Please wait a moment and try again.'
+    );
+  }
+
   const url = `${base}${endpoint}`;
 
   const headers = new Headers(options.headers || {});

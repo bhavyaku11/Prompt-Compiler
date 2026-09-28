@@ -185,6 +185,21 @@ async fn shutdown_sidecar(state: Arc<Mutex<SidecarState>>) {
     guard.port = None;
 }
 
+// ── Commands ──────────────────────────────────────────────────────────────────
+
+/// Query the currently running backend URL (e.g. "http://127.0.0.1:18000").
+#[tauri::command]
+async fn get_backend_url(
+    state: tauri::State<'_, Arc<Mutex<SidecarState>>>,
+) -> Result<Option<String>, String> {
+    let guard = state.lock().await;
+    if let Some(port) = guard.port {
+        Ok(Some(format!("http://127.0.0.1:{port}")))
+    } else {
+        Ok(None)
+    }
+}
+
 // ── Entry point ───────────────────────────────────────────────────────────────
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -195,10 +210,13 @@ pub fn run() {
     }));
     let sidecar_state_setup = Arc::clone(&sidecar_state);
     let sidecar_state_exit = Arc::clone(&sidecar_state);
+    let sidecar_state_run = Arc::clone(&sidecar_state);
 
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
+        .manage(Arc::clone(&sidecar_state))
+        .invoke_handler(tauri::generate_handler![get_backend_url])
         .setup(move |app| {
             let app_handle = app.handle().clone();
             let state = Arc::clone(&sidecar_state_setup);
@@ -218,6 +236,15 @@ pub fn run() {
                 });
             }
         })
-        .run(tauri::generate_context!())
-        .expect("error while running prompt compiler desktop application");
+        .build(tauri::generate_context!())
+        .expect("error while building prompt compiler desktop application");
+
+    app.run(move |_app_handle, event| {
+        if let tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit = event {
+            let state = Arc::clone(&sidecar_state_run);
+            tauri::async_runtime::block_on(async move {
+                shutdown_sidecar(state).await;
+            });
+        }
+    });
 }

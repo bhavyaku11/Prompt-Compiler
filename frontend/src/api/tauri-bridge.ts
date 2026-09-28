@@ -9,11 +9,72 @@
  * forwards `/api` requests to the running backend directly.
  */
 
-import { setApiBaseUrl } from './client.ts';
+import { setApiBaseUrl, getApiBaseUrl, setBackendUrlResolver } from './client.ts';
 
 /** True when running inside a Tauri window. */
 export function isTauri(): boolean {
-  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+  if (typeof window === 'undefined') return false;
+  return (
+    Boolean((window as unknown as { isTauri?: boolean }).isTauri) ||
+    '__TAURI_INTERNALS__' in window ||
+    '__TAURI__' in window
+  );
+}
+
+/**
+ * Probe local ports (18000..18020, plus 8000 fallback) to find an active Prompt Compiler backend.
+ */
+export async function probeLocalBackend(): Promise<string | null> {
+  const ports = Array.from({ length: 21 }, (_, i) => 18000 + i);
+  ports.unshift(8000);
+
+  for (const port of ports) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 250);
+      const res = await fetch(`http://127.0.0.1:${port}/api/health`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.status === 'ok') {
+          const url = `http://127.0.0.1:${port}`;
+          console.info(`[tauri-bridge] probed active local engine at ${url}`);
+          setApiBaseUrl(url);
+          return url;
+        }
+      }
+    } catch {
+      // Continue checking next candidate port
+    }
+  }
+  return null;
+}
+
+/**
+ * Resolve the backend URL through cache, Tauri command, or port probing.
+ */
+export async function resolveBackendUrl(): Promise<string | null> {
+  const current = getApiBaseUrl();
+  if (current) return current;
+
+  // Attempt Tauri IPC invoke
+  if (isTauri()) {
+    try {
+      const { invoke } = await import('@tauri-apps/api/core');
+      const url = await invoke<string | null>('get_backend_url');
+      if (url) {
+        setApiBaseUrl(url);
+        return url;
+      }
+    } catch (err) {
+      console.debug('[tauri-bridge] get_backend_url invoke not available yet:', err);
+    }
+  }
+
+  // Fallback to rapid loopback probing
+  return await probeLocalBackend();
 }
 
 /**
@@ -57,41 +118,44 @@ export async function selectProjectFolder(defaultPath?: string): Promise<string 
  * Call this once, early in the app lifecycle (e.g. from main.tsx).
  */
 export async function initTauriBridge(): Promise<void> {
+  // Always register backend resolver for desktop environments
+  setBackendUrlResolver(resolveBackendUrl);
+
   if (!isTauri()) {
     // Browser / Vite dev mode — nothing to do.
     return;
   }
 
+  // 1. Immediately attempt URL resolution from cache / Tauri / probing
+  resolveBackendUrl().catch((err) => {
+    console.debug('[tauri-bridge] Early URL resolution attempt:', err);
+  });
+
+  // 2. Set up event listeners for sidecar lifecycle
   try {
     const { listen } = await import('@tauri-apps/api/event');
 
     // "backend-ready" carries the base URL string, e.g. "http://127.0.0.1:18000"
-    const unlistenReady = await listen<string>('backend-ready', (event) => {
+    await listen<string>('backend-ready', (event) => {
       const baseUrl = event.payload;
       if (baseUrl) {
-        console.info(`[tauri-bridge] backend ready at ${baseUrl}`);
+        console.info(`[tauri-bridge] backend ready event received: ${baseUrl}`);
         setApiBaseUrl(baseUrl);
       }
-      // We only need to set this once — unlisten to avoid memory leaks.
-      unlistenReady();
     });
 
     // "backend-failed" means the sidecar could not start.
-    const unlistenFailed = await listen<string>('backend-failed', (event) => {
-      console.error(`[tauri-bridge] backend failed: ${event.payload}`);
-      // Surface to the user via a global custom event so the UI can react.
+    await listen<string>('backend-failed', (event) => {
+      console.error(`[tauri-bridge] backend failed event received: ${event.payload}`);
       window.dispatchEvent(
         new CustomEvent('prompt-compiler:backend-failed', {
           detail: event.payload,
         })
       );
-      unlistenFailed();
     });
 
     console.info('[tauri-bridge] listening for backend-ready / backend-failed events');
   } catch (err) {
-    // @tauri-apps/api not available (e.g., running in a plain browser after
-    // the Tauri check somehow failed). Fail gracefully.
     console.warn('[tauri-bridge] failed to set up Tauri event listeners:', err);
   }
 }
