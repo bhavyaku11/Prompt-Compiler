@@ -17,9 +17,13 @@ import { CompiledPromptCard } from '@/components/studio/CompiledPromptCard';
 import { MetadataAccordion } from '@/components/studio/MetadataAccordion';
 import { PipelineProgress } from '@/components/studio/PipelineProgress';
 import { NewProjectModal } from '@/components/studio/NewProjectModal';
+import { InterviewSessionCard } from '@/components/studio/InterviewSessionCard';
 
 import {
   compilePrompt,
+  startInterview,
+  submitInterviewAnswers,
+  compileFromInterview,
   getAgentPresets,
   getProjects,
   getHealth,
@@ -32,6 +36,8 @@ import type {
   Project,
   AgentPreset,
   CompileResponse,
+  InterviewSessionResponse,
+  InterviewAnswer,
 } from '@/types/api';
 
 export function StudioView() {
@@ -51,6 +57,8 @@ export function StudioView() {
   const [isCompiling, setIsCompiling] = useState<boolean>(false);
   const [isPipelineComplete, setIsPipelineComplete] = useState<boolean>(false);
   const [result, setResult] = useState<CompileResponse | null>(null);
+  const [compiledAt, setCompiledAt] = useState<string>('');
+  const [activeInterviewSession, setActiveInterviewSession] = useState<InterviewSessionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submittedPrompt, setSubmittedPrompt] = useState<string>('');
 
@@ -227,21 +235,45 @@ export function StudioView() {
     setIsCompiling(true);
     setIsPipelineComplete(false);
     setSubmittedPrompt(trimmedInput);
+    setActiveInterviewSession(null);
 
     try {
-      const response = await compilePrompt({
-        input: trimmedInput,
-        project_id: selectedProjectId,
-        target_agent: targetAgent,
-        enable_knowledge_retrieval: enableKnowledge,
-        interview_mode: interviewMode,
-      });
+      if (interviewMode) {
+        // Start interview clarification session via POST /api/interview/start
+        const session = await startInterview({
+          input: trimmedInput,
+          project_id: selectedProjectId,
+          target_agent: targetAgent,
+          enable_knowledge_retrieval: enableKnowledge,
+        });
 
-      // Mark visual pipeline complete briefly, then transition to compiled prompt card
-      setIsPipelineComplete(true);
-      await new Promise((resolve) => setTimeout(resolve, 350));
-      setResult(response);
-      setInput(''); // Clear input for next instruction
+        if (session.status === 'ready' || !session.questions || session.questions.length === 0) {
+          // If no questions are needed, compile directly from the interview session
+          const response = await compileFromInterview(session.session_id);
+          setIsPipelineComplete(true);
+          await new Promise((resolve) => setTimeout(resolve, 350));
+          setResult(response);
+          setCompiledAt(new Date().toLocaleTimeString());
+          setInput('');
+        } else {
+          // Questions require clarification by user
+          setActiveInterviewSession(session);
+        }
+      } else {
+        const response = await compilePrompt({
+          input: trimmedInput,
+          project_id: selectedProjectId,
+          target_agent: targetAgent,
+          enable_knowledge_retrieval: enableKnowledge,
+        });
+
+        // Mark visual pipeline complete briefly, then transition to compiled prompt card
+        setIsPipelineComplete(true);
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        setResult(response);
+        setCompiledAt(new Date().toLocaleTimeString());
+        setInput(''); // Clear input for next instruction
+      }
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -256,8 +288,87 @@ export function StudioView() {
     }
   };
 
+  const handleSubmitInterviewAnswers = async (answers: InterviewAnswer[]) => {
+    if (!activeInterviewSession) return;
+
+    setError(null);
+    setIsCompiling(true);
+
+    try {
+      const updatedSession = await submitInterviewAnswers(
+        activeInterviewSession.session_id,
+        { answers }
+      );
+
+      if (
+        updatedSession.status === 'ready' ||
+        !updatedSession.questions ||
+        updatedSession.questions.length === 0
+      ) {
+        // All questions clarified! Compile final prompt
+        const response = await compileFromInterview(updatedSession.session_id);
+        setIsPipelineComplete(true);
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        setResult(response);
+        setCompiledAt(new Date().toLocaleTimeString());
+        setActiveInterviewSession(null);
+        setInput('');
+      } else {
+        // Advance to next turn questions
+        setActiveInterviewSession(updatedSession);
+      }
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to submit interview answers. Please try again.');
+      }
+    } finally {
+      setIsCompiling(false);
+      setIsPipelineComplete(false);
+    }
+  };
+
+  const handleSkipInterviewAndCompile = async () => {
+    if (!activeInterviewSession) return;
+
+    setError(null);
+    setIsCompiling(true);
+
+    try {
+      const response = await compileFromInterview(activeInterviewSession.session_id);
+      setIsPipelineComplete(true);
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      setResult(response);
+      setCompiledAt(new Date().toLocaleTimeString());
+      setActiveInterviewSession(null);
+      setInput('');
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to compile prompt from interview session.');
+      }
+    } finally {
+      setIsCompiling(false);
+      setIsPipelineComplete(false);
+    }
+  };
+
+  const handleCancelInterview = () => {
+    setActiveInterviewSession(null);
+    setError(null);
+    setIsCompiling(false);
+  };
+
   const handleNewCompilation = () => {
     setResult(null);
+    setCompiledAt('');
+    setActiveInterviewSession(null);
     setError(null);
     setIsCompiling(false);
     setIsPipelineComplete(false);
@@ -389,8 +500,22 @@ export function StudioView() {
 
           {/* Main Content Area */}
           <div className="relative z-10 w-full max-w-4xl mx-auto px-4 py-8 sm:px-8 flex-1 flex flex-col">
-            {/* Case A: Empty State (No prompt submitted yet) */}
-            {!result && !isCompiling && (
+            {/* Case A: Active Interview Session */}
+            {activeInterviewSession && !isCompiling && (
+              <div className="flex-1 flex flex-col justify-center my-auto">
+                <InterviewSessionCard
+                  session={activeInterviewSession}
+                  originalInput={submittedPrompt || input}
+                  isSubmitting={isCompiling}
+                  onSubmitAnswers={handleSubmitInterviewAnswers}
+                  onSkipAndCompile={handleSkipInterviewAndCompile}
+                  onCancel={handleCancelInterview}
+                />
+              </div>
+            )}
+
+            {/* Case B: Empty State (No prompt submitted yet and no active interview) */}
+            {!result && !activeInterviewSession && !isCompiling && (
               <div className="flex-1 flex flex-col items-center justify-center text-center my-auto animate-in fade-in duration-300">
                 {/* Eyebrow Badge */}
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-card/80 backdrop-blur-md mb-6 shadow-xs">
@@ -480,7 +605,7 @@ export function StudioView() {
                     </div>
                     <div className="flex items-center gap-1.5 text-[11px]">
                       <Clock className="h-3 w-3" />
-                      <span>{new Date().toLocaleTimeString()}</span>
+                      <span>{compiledAt || 'Just now'}</span>
                     </div>
                   </div>
                   <p className="mt-3 text-sm text-foreground/90 font-mono leading-relaxed whitespace-pre-wrap">
