@@ -6,8 +6,19 @@
 
 **A local-first macOS desktop application that compiles rough, unstructured human requirements into clear, validated, implementation-ready prompts for AI coding agents.**
 
+<br/>
+
+<a href="https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg">
+  <img src="https://img.shields.io/badge/⚡_Download_Prompt_Compiler-macOS_Apple_Silicon_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Download Prompt Compiler for macOS (.dmg)" height="44" />
+</a>
+
+<p>
+  <b>Direct 1-Click Download:</b> <a href="https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg"><b>Prompt.Compiler_0.1.0_aarch64.dmg</b></a> (35.15 MiB)<br/>
+  <sub>Compatible with macOS 14+ on Apple Silicon (M1/M2/M3/M4) &bull; Requires local <a href="https://ollama.com/">Ollama</a></sub>
+</p>
+
 [![Release](https://img.shields.io/badge/release-v0.1.0--rc1-blue.svg)](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0-rc1)
-[![Download DMG](https://img.shields.io/badge/download-macOS%20Apple%20Silicon%20(.dmg)-2ea44f.svg)](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg)
+[![Direct Download](https://img.shields.io/badge/direct%20download-macOS%20DMG-2ea44f.svg)](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg)
 [![Platform](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon%20(arm64)-black.svg)](#system-requirements)
 [![Frontend](https://img.shields.io/badge/frontend-React%2019%20%7C%20TypeScript%20%7C%20Tailwind%20v4-61DAFB.svg)](#technology-stack)
 [![Backend](https://img.shields.io/badge/backend-FastAPI%20%7C%20Python%203.14%20%7C%20Uvicorn-009688.svg)](#technology-stack)
