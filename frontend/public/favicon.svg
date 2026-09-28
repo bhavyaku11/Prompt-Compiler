@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <style>
+    .bg { fill: #1e2024; stroke: rgba(255, 255, 255, 0.15); }
+    .chevron { stroke: #FFFFFF; }
+    .cursor { fill: #34d399; }
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #FFFFFF; stroke: rgba(0, 0, 0, 0.12); }
+      .chevron { stroke: #1e2024; }
+      .cursor { fill: #10b981; }
+    }
+  </style>
+  <rect class="bg" x="1" y="1" width="38" height="38" rx="10" stroke-width="1"/>
+  <path class="chevron" d="M11 13.5 L20 20 L11 26.5" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect class="cursor" x="20.5" y="24" width="9" height="3" rx="1"/>
+</svg>

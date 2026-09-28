@@ -1,0 +1,369 @@
+{
+  "benchmark_version": "1.0.0",
+  "case_outcomes": {
+    "BM-ANALYZE-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-ANALYZE-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-ANALYZE-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-ANALYZE-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-ANALYZE-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-BUILD-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-BUILD-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-BUILD-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-BUILD-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-BUILD-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CONFLICT-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CONFLICT-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CONFLICT-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CONFLICT-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CONFLICT-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CTX-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CTX-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CTX-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CTX-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-CTX-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-DEBUG-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-DEBUG-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-DEBUG-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-DEBUG-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-DEBUG-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-EXPLAIN-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-EXPLAIN-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-EXPLAIN-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-EXPLAIN-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-EXPLAIN-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-KNOW-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-KNOW-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-KNOW-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-KNOW-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-KNOW-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-MODIFY-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-MODIFY-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-MODIFY-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-MODIFY-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-MODIFY-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-MULTI-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-MULTI-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-MULTI-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-MULTI-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-MULTI-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": 1.0
+    },
+    "BM-NEG-01:claude_code": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-NEG-01:cline": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-NEG-01:cursor": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-NEG-01:generic": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    },
+    "BM-NEG-01:windsurf": {
+      "constraint_adherence_score": 1.0,
+      "forbidden_assumption_score": 1.0,
+      "passed": true,
+      "requirement_preservation_score": 1.0,
+      "retrieval_source_recall": null
+    }
+  },
+  "failed_evaluations": 0,
+  "metrics": {
+    "agent_preset_preservation_rate": 1.0,
+    "constraint_adherence_rate": 1.0,
+    "forbidden_assumption_rate": 1.0,
+    "multi_source_coverage": 1.0,
+    "requirement_preservation_rate": 1.0,
+    "retrieval_precision": 1.0,
+    "retrieval_source_recall": 1.0
+  },
+  "passed_evaluations": 50,
+  "timestamp": "2026-09-25T21:07:54.682224+00:00",
+  "total_cases": 10,
+  "total_evaluations": 50
+}

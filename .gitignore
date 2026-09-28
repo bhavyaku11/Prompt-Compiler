@@ -1,0 +1,90 @@
+# ==========================================
+# Prompt Compiler — Version Control Exclusions
+# ==========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r\r
+
+# Node / Frontend Build & Caches
+node_modules/
+dist/
+frontend/dist/
+dist-ssr/
+.vite/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Python & Packaging
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+backend/.venv/
+build/
+backend/build/
+backend/dist/
+*.egg-info/
+.eggs/
+
+# Testing & Tooling
+.pytest_cache/
+backend/.pytest_cache/
+.mypy_cache/
+.coverage
+coverage/
+htmlcov/
+.oxlint-cache/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Local Databases, User Data & Runtime
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+data/
+backend/data/
+prompt_compiler.db
+
+# Tauri & Desktop Build Artifacts
+src-tauri/target/
+src-tauri/binaries/*
+!src-tauri/binaries/.gitkeep
+
+# Local Generated Release Artifacts
+*.dmg
+*.app
+
+# Scratch & Local Development Test Harnesses
+scratch/
+backend/scratch/
+
+# IDEs & Text Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+*.tmp
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
