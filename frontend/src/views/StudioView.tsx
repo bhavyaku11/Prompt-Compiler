@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@clerk/react';
+import { useAuth, useUser } from '@clerk/react';
 import {
   Bot,
   AlertTriangle,
@@ -43,6 +43,8 @@ import type {
 export function StudioView() {
   const navigate = useNavigate();
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
+  const displayName = user?.firstName || user?.username || (user?.fullName ? user.fullName.split(' ')[0] : 'there');
 
   // Core Studio State
   const [projects, setProjects] = useState<Project[]>([]);
@@ -517,24 +519,10 @@ export function StudioView() {
             {/* Case B: Empty State (No prompt submitted yet and no active interview) */}
             {!result && !activeInterviewSession && !isCompiling && (
               <div className="flex-1 flex flex-col items-center justify-center text-center my-auto animate-in fade-in duration-300">
-                {/* Eyebrow Badge */}
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-card/80 backdrop-blur-md mb-6 shadow-xs">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-mono font-medium text-foreground">
-                    Deterministic Prompt Engineering • Local-First
-                  </span>
-                </div>
-
-                {/* Headline */}
-                <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground max-w-2xl leading-[1.15] mb-4">
-                  Turn rough ideas into implementation-ready prompts.
+                {/* Personalized Greeting */}
+                <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground max-w-2xl leading-[1.15] mb-8">
+                  Hi, {displayName}!!
                 </h1>
-
-                {/* Supporting Text */}
-                <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8">
-                  Describe what you want to build. Prompt Compiler will structure the requirements,
-                  apply relevant project context, and generate a prompt for your target AI coding agent.
-                </p>
 
                 {/* Empty State Composer with Quick Action Chips */}
                 <Composer
