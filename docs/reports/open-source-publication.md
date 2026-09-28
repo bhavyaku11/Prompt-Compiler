@@ -154,8 +154,9 @@ All 36 task implementation logs, architecture decision records, API contracts, r
 ## Release Artifact Handling
 
 - The production `.app` bundle (44.86 MiB) and `.dmg` installer (35.15 MiB) generated during Task 34 and Task 35 remain stored locally in `src-tauri/target/release/bundle/`.
-- Per release instructions, these binary artifacts are **not** committed to the Git source repository.
-- Distribution binaries will be attached to an official GitHub Release in a separate publication task.
+- Per release packaging standards, these binary artifacts are **not** committed to the Git source repository.
+- An official GitHub Release **v0.1.0-rc1** has been published at `https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0-rc1` with `Prompt.Compiler_0.1.0_aarch64.dmg` (35.15 MiB) attached as a downloadable binary asset.
+- Direct download link in README: `https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg`.
 
 ---
 
