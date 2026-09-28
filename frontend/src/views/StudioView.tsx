@@ -487,35 +487,31 @@ export function StudioView() {
   const selectedProject = projects.find((p) => p.project_id === selectedProjectId) || null;
 
   return (
-    <div className="h-screen w-full flex flex-col bg-background text-foreground overflow-hidden selection:bg-neutral-800 selection:text-white dark:selection:bg-white dark:selection:text-black">
-      {/* Top Application Header */}
-      <TopBar
-        currentProject={selectedProject}
-        onSelectProject={setSelectedProjectId}
+    <div className="h-screen w-full flex bg-background text-foreground overflow-hidden selection:bg-neutral-800 selection:text-white dark:selection:bg-white dark:selection:text-black">
+      {/* Left Collapsible Sidebar (Extends to the very top!) */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onToggle={() => setIsSidebarOpen((prev) => !prev)}
+        onNewCompilation={handleNewCompilation}
         projects={projects}
+        selectedProjectId={selectedProjectId}
+        onSelectProject={setSelectedProjectId}
         onOpenNewProject={() => setIsNewProjectModalOpen(true)}
         isBackendHealthy={isBackendHealthy}
-        onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
-        isOnline={isOnline}
+        activeProjectMemoryCount={projectMemoryCount}
+        activeProjectKnowledgeCount={projectKnowledgeCount}
+        onUpdateProject={handleUpdateProject}
+        onDeleteProject={handleDeleteProject}
+        onRefreshKnowledge={handleRefreshKnowledge}
       />
 
-      {/* Main Body: Sidebar + Workspace */}
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* Left Collapsible Sidebar */}
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onToggle={() => setIsSidebarOpen((prev) => !prev)}
-          onNewCompilation={handleNewCompilation}
-          projects={projects}
-          selectedProjectId={selectedProjectId}
-          onSelectProject={setSelectedProjectId}
-          onOpenNewProject={() => setIsNewProjectModalOpen(true)}
+      {/* Right Column: TopBar + Workspace */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {/* Top Application Header */}
+        <TopBar
           isBackendHealthy={isBackendHealthy}
-          activeProjectMemoryCount={projectMemoryCount}
-          activeProjectKnowledgeCount={projectKnowledgeCount}
-          onUpdateProject={handleUpdateProject}
-          onDeleteProject={handleDeleteProject}
-          onRefreshKnowledge={handleRefreshKnowledge}
+          onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+          isOnline={isOnline}
         />
 
         {/* Center Main Workspace */}

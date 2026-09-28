@@ -3,31 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useClerk, useUser } from '@clerk/react';
 import {
   LogOut,
-  FolderKanban,
   CheckCircle2,
   AlertCircle,
   Menu,
-  ChevronDown,
   WifiOff,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import type { Project } from '@/types/api';
 
 interface TopBarProps {
-  currentProject: Project | null;
-  onSelectProject: (projectId: string | null) => void;
-  projects: Project[];
-  onOpenNewProject: () => void;
   isBackendHealthy: boolean;
   onToggleSidebar: () => void;
   isOnline?: boolean;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
-  currentProject,
-  onSelectProject,
-  projects,
-  onOpenNewProject,
   isBackendHealthy,
   onToggleSidebar,
   isOnline = true,
@@ -37,18 +26,13 @@ export const TopBar: React.FC<TopBarProps> = ({
   const { signOut } = useClerk();
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const projectDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close menus on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setIsUserMenuOpen(false);
-      }
-      if (projectDropdownRef.current && !projectDropdownRef.current.contains(e.target as Node)) {
-        setIsProjectDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -72,75 +56,6 @@ export const TopBar: React.FC<TopBarProps> = ({
         >
           <Menu className="h-5 w-5" />
         </button>
-      </div>
-
-      {/* Center: Current Project Indicator */}
-      <div className="relative hidden sm:block" ref={projectDropdownRef}>
-        <button
-          type="button"
-          onClick={() => setIsProjectDropdownOpen((prev) => !prev)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border border-border/80 bg-card hover:bg-muted text-foreground transition-all cursor-pointer shadow-2xs"
-        >
-          <FolderKanban className="h-3.5 w-3.5 text-primary" />
-          <span className="max-w-[160px] truncate">
-            {currentProject ? currentProject.name : 'No Project (Global)'}
-          </span>
-          <ChevronDown className="h-3 w-3 text-muted-foreground" />
-        </button>
-
-        {isProjectDropdownOpen && (
-          <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 rounded-xl border border-border bg-card p-1.5 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100 max-h-72 overflow-y-auto">
-            <div className="px-2.5 py-1 text-[10px] font-mono uppercase text-muted-foreground">
-              Select Workspace Project
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                onSelectProject(null);
-                setIsProjectDropdownOpen(false);
-              }}
-              className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                currentProject === null
-                  ? 'bg-primary/10 text-primary font-semibold'
-                  : 'text-foreground hover:bg-muted'
-              }`}
-            >
-              <span>No Project (Global Context)</span>
-            </button>
-
-            {projects.map((proj) => (
-              <button
-                key={proj.project_id}
-                type="button"
-                onClick={() => {
-                  onSelectProject(proj.project_id);
-                  setIsProjectDropdownOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                  currentProject?.project_id === proj.project_id
-                    ? 'bg-primary/10 text-primary font-semibold'
-                    : 'text-foreground hover:bg-muted'
-                }`}
-              >
-                <span className="truncate">{proj.name}</span>
-              </button>
-            ))}
-
-            <div className="pt-1 mt-1 border-t border-border/40">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsProjectDropdownOpen(false);
-                  onOpenNewProject();
-                }}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-primary hover:bg-primary/10 transition-colors cursor-pointer"
-              >
-                + Create New Project
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Right: Engine Status + Account Status + Theme + Clerk Avatar */}

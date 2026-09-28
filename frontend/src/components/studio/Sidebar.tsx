@@ -117,15 +117,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 flex flex-col justify-between border-r border-sidebar-border bg-sidebar backdrop-blur-xl transition-all duration-300 ease-in-out shrink-0 ${
+        className={`fixed md:static inset-y-0 left-0 z-50 flex flex-col justify-between border-r border-sidebar-border bg-sidebar backdrop-blur-xl transition-all duration-300 ease-in-out shrink-0 h-screen ${
           isOpen ? 'w-72 translate-x-0' : '-translate-x-full md:translate-x-0 md:w-16'
         }`}
       >
-        {/* Top: Header & New Compilation */}
-        <div className="flex flex-col gap-3.5 p-3.5 border-b border-sidebar-border/60">
-          {/* Brand Logo & Collapse Toggle */}
-          <div className="flex items-center justify-between gap-1">
-            {isOpen ? (
+        {/* Top: Header Bar aligned with TopBar (h-14) */}
+        <div className="h-14 flex items-center justify-between px-3.5 border-b border-sidebar-border/60 shrink-0">
+          {/* Brand Logo & Title */}
+          {isOpen ? (
+            <div className="flex items-center justify-between w-full min-w-0">
               <button
                 type="button"
                 onClick={() => navigate('/')}
@@ -140,32 +140,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   Studio
                 </span>
               </button>
-            ) : (
+
+              {/* Toggle Arrow (Desktop) */}
+              <button
+                type="button"
+                onClick={onToggle}
+                className="hidden md:flex p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-card/70 transition-colors cursor-pointer shrink-0"
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full">
               <button
                 type="button"
                 onClick={() => navigate('/')}
-                className="mx-auto cursor-pointer group transition-opacity hover:opacity-90"
+                className="cursor-pointer group transition-opacity hover:opacity-90"
                 title="Return to Home"
               >
                 <Logo size="sm" />
               </button>
-            )}
+            </div>
+          )}
+        </div>
 
-            {/* Toggle Arrow (Desktop) */}
-            <button
-              type="button"
-              onClick={onToggle}
-              className={`hidden md:flex p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0 ${
-                !isOpen ? 'mt-2 mx-auto' : ''
-              }`}
-              title={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-              aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-            >
-              {isOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-            </button>
-          </div>
-
-          {/* New Compilation Action Button */}
+        {/* New Compilation Action Button Area */}
+        <div className="p-3 pb-2 shrink-0">
           <button
             type="button"
             onClick={onNewCompilation}
@@ -177,6 +179,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Plus className="h-4 w-4 stroke-[2.5]" />
             {isOpen && <span>New Compilation</span>}
           </button>
+          {!isOpen && (
+            <button
+              type="button"
+              onClick={onToggle}
+              className="hidden md:flex p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-card/70 transition-colors cursor-pointer mx-auto mt-2"
+              title="Expand sidebar"
+              aria-label="Expand sidebar"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* Middle Navigation Groups */}
