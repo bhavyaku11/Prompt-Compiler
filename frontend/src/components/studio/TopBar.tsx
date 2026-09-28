@@ -11,7 +11,6 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { Logo } from '@/components/ui/Logo';
 import type { Project } from '@/types/api';
 
 interface TopBarProps {
@@ -63,8 +62,8 @@ export const TopBar: React.FC<TopBarProps> = ({
 
   return (
     <header className="h-14 border-b border-border/60 bg-card/60 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between z-30 shrink-0">
-      {/* Left: Mobile Menu + Brand Logo */}
-      <div className="flex items-center gap-3">
+      {/* Left: Mobile Menu Toggle */}
+      <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={onToggleSidebar}
@@ -73,22 +72,6 @@ export const TopBar: React.FC<TopBarProps> = ({
         >
           <Menu className="h-5 w-5" />
         </button>
-
-        <div
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2.5 cursor-pointer group transition-opacity hover:opacity-90"
-          title="Return to Home"
-        >
-          <Logo size="md" />
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold tracking-tight text-foreground hidden xs:inline-block">
-              Prompt Compiler
-            </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-semibold uppercase tracking-wider">
-              Studio
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Center: Current Project Indicator */}

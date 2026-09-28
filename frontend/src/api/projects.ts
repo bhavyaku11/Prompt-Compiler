@@ -66,3 +66,13 @@ export async function getProjectMemories(projectId: string): Promise<ProjectMemo
     method: 'GET',
   });
 }
+
+/**
+ * Delete a project along with its memories, candidates, and knowledge documents.
+ */
+export async function deleteProject(projectId: string): Promise<{ deleted: boolean; project_id: string }> {
+  return fetchApi<{ deleted: boolean; project_id: string }>(`/api/projects/${projectId}`, {
+    method: 'DELETE',
+  });
+}
+

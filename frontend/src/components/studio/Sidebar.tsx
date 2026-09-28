@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/react';
 import {
   Plus,
@@ -12,6 +13,7 @@ import {
   FolderOpen,
   RefreshCw,
   Loader2,
+  Trash2,
 } from 'lucide-react';
 import type { Project } from '@/types/api';
 import { selectProjectFolder, isTauri } from '@/api/tauri-bridge';
@@ -31,6 +33,7 @@ interface SidebarProps {
   activeProjectMemoryCount?: number;
   activeProjectKnowledgeCount?: number;
   onUpdateProject?: (project: Project) => void;
+  onDeleteProject?: (projectId: string) => Promise<void> | void;
   onRefreshKnowledge?: () => void;
 }
 
@@ -46,8 +49,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeProjectMemoryCount = 0,
   activeProjectKnowledgeCount = 0,
   onUpdateProject,
+  onDeleteProject,
   onRefreshKnowledge,
 }) => {
+  const navigate = useNavigate();
   const { user } = useUser();
   const [isUpdatingFolder, setIsUpdatingFolder] = useState(false);
   const [isIngesting, setIsIngesting] = useState(false);
@@ -118,27 +123,43 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         {/* Top: Header & New Compilation */}
         <div className="flex flex-col gap-4 p-3.5">
-          {/* Collapse Toggle & Brand in Sidebar */}
-          <div className="flex items-center justify-between">
+          {/* Brand Logo & Collapse Toggle */}
+          <div className="flex items-center justify-between gap-1">
             {isOpen ? (
-              <div className="flex items-center gap-2 px-1">
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2 px-1 text-left cursor-pointer group transition-opacity hover:opacity-90 min-w-0"
+                title="Return to Home"
+              >
                 <Logo size="sm" />
-                <span className="text-xs font-bold tracking-tight text-foreground font-mono">
-                  PROMPT COMPILER
+                <span className="text-xs font-bold tracking-tight text-foreground font-mono truncate">
+                  Prompt Compiler
                 </span>
-              </div>
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-semibold uppercase tracking-wider shrink-0">
+                  Studio
+                </span>
+              </button>
             ) : (
-              <div className="mx-auto">
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="mx-auto cursor-pointer group transition-opacity hover:opacity-90"
+                title="Return to Home"
+              >
                 <Logo size="sm" />
-              </div>
+              </button>
             )}
 
             {/* Toggle Arrow (Desktop) */}
             <button
               type="button"
               onClick={onToggle}
-              className="hidden md:flex p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+              className={`hidden md:flex p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0 ${
+                !isOpen ? 'mt-2 mx-auto' : ''
+              }`}
               title={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+              aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
             >
               {isOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </button>
@@ -209,19 +230,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* List first 4 projects or selected project */}
             {isOpen && (
               <div className="space-y-0.5 pl-2 pt-1 border-l border-border/40 ml-3">
-                {projects.slice(0, 5).map((p) => (
-                  <button
+                {projects.map((p) => (
+                  <div
                     key={p.project_id}
-                    type="button"
-                    onClick={() => onSelectProject(p.project_id)}
-                    className={`w-full flex items-center justify-between px-2 py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
+                    className={`group/proj w-full flex items-center justify-between px-2 py-1 rounded-md text-[11px] transition-colors ${
                       selectedProjectId === p.project_id
                         ? 'text-primary font-bold bg-primary/10'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
                     }`}
                   >
-                    <span className="truncate max-w-[140px]">{p.name}</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => onSelectProject(p.project_id)}
+                      className="flex-1 text-left truncate cursor-pointer mr-1"
+                      title={p.name}
+                    >
+                      <span className="truncate block max-w-[130px]">{p.name}</span>
+                    </button>
+
+                    {onDeleteProject && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (
+                            window.confirm(
+                              `Delete project "${p.name}"? This will remove all associated memories and documents.`
+                            )
+                          ) {
+                            void onDeleteProject(p.project_id);
+                          }
+                        }}
+                        className="opacity-0 group-hover/proj:opacity-100 p-0.5 rounded hover:bg-red-500/20 text-muted-foreground hover:text-red-500 transition-all cursor-pointer shrink-0"
+                        title={`Delete ${p.name}`}
+                        aria-label={`Delete ${p.name}`}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
                 ))}
 
                 <button

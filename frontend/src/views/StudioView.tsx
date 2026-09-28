@@ -26,6 +26,7 @@ import {
   compileFromInterview,
   getAgentPresets,
   getProjects,
+  deleteProject,
   getHealth,
   getProjectMemories,
   getKnowledgeSources,
@@ -401,6 +402,21 @@ export function StudioView() {
     );
   };
 
+  const handleDeleteProject = useCallback(
+    async (projectId: string) => {
+      try {
+        await deleteProject(projectId);
+        setProjects((prev) => prev.filter((p) => p.project_id !== projectId));
+        if (selectedProjectId === projectId) {
+          setSelectedProjectId(null);
+        }
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to delete project');
+      }
+    },
+    [selectedProjectId]
+  );
+
   const handleRefreshKnowledge = useCallback(async () => {
     if (!selectedProjectId) return;
     try {
@@ -498,6 +514,7 @@ export function StudioView() {
           activeProjectMemoryCount={projectMemoryCount}
           activeProjectKnowledgeCount={projectKnowledgeCount}
           onUpdateProject={handleUpdateProject}
+          onDeleteProject={handleDeleteProject}
           onRefreshKnowledge={handleRefreshKnowledge}
         />
 
