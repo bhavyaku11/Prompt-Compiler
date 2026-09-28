@@ -235,6 +235,36 @@ class PromptInterviewer:
         "authentication": ["auth", "jwt", "oauth", "clerk", "nextauth", "cognito", "firebase auth", "supabase auth", "passport"],
     }
 
+    def _is_exhaustively_specified(self, analysis: RequirementAnalysis) -> bool:
+        """Check if sufficient key technical specifications are already confirmed."""
+        confirmed_text = " ".join(analysis.confirmed_requirements + analysis.constraints).lower()
+        confirmed_dimensions = 0
+        for topic, indicators in self.TOPIC_KNOWN_INDICATORS.items():
+            if any(kw in confirmed_text for kw in indicators):
+                confirmed_dimensions += 1
+        if confirmed_dimensions >= 2 and not analysis.missing_information:
+            return True
+        return False
+
+    def _derive_missing_architectural_topics(
+        self,
+        analysis: RequirementAnalysis,
+        already_asked: set[str],
+    ) -> list[str]:
+        """Derive candidate architectural decisions when missing_information is empty or incomplete."""
+        confirmed_text = " ".join(analysis.confirmed_requirements + analysis.constraints).lower()
+        candidates = ["framework", "database", "styling", "deployment", "authentication"]
+        derived: list[str] = []
+        for topic in candidates:
+            if topic in already_asked:
+                continue
+            indicators = self.TOPIC_KNOWN_INDICATORS.get(topic, [topic])
+            if not any(kw in confirmed_text for kw in indicators):
+                derived.append(topic)
+                if len(derived) >= self._max_questions:
+                    break
+        return derived
+
     def _filter_material_missing_topics(
         self,
         analysis: RequirementAnalysis,
@@ -319,9 +349,13 @@ class PromptInterviewer:
         analysis: RequirementAnalysis,
         already_asked: set[str],
         use_llm: bool = True,
+        input_text: str | None = None,
     ) -> list[InterviewQuestion]:
         """Generate targeted clarification questions for unresolved missing information."""
         missing_topics = self._filter_material_missing_topics(analysis, already_asked)
+        if not missing_topics and not self._is_exhaustively_specified(analysis):
+            missing_topics = self._derive_missing_architectural_topics(analysis, already_asked)
+
         if not missing_topics:
             return []
 
@@ -337,8 +371,10 @@ class PromptInterviewer:
 
         # Use Ollama to generate context-aware questions
         prompt_content = (
+            f"User Initial Request: \"{input_text or analysis.intent}\"\n"
             f"User Intent: {analysis.intent}\n"
             f"Domain: {analysis.domain}\n"
+            f"Task Type: {analysis.task_type}\n"
             f"Confirmed Requirements: {json.dumps(analysis.confirmed_requirements)}\n"
             f"Constraints: {json.dumps(analysis.constraints)}\n"
             f"Missing Decisions to clarify (max {len(selected_topics)}): {json.dumps(selected_topics)}\n\n"
@@ -346,8 +382,9 @@ class PromptInterviewer:
         )
 
         try:
-            raw_response = await self._ollama_client.generate_async(
-                prompt=prompt_content,
+            full_prompt = f"{QUESTION_GENERATION_INSTRUCTION}\n\n{prompt_content}"
+            raw_response = await self._ollama_client.generate(
+                prompt=full_prompt,
                 system=QUESTION_GENERATION_INSTRUCTION,
             )
             parsed = _parse_llm_json(raw_response)
@@ -416,8 +453,12 @@ class PromptInterviewer:
 
         material_topics = self._filter_material_missing_topics(analysis, already_asked)
 
+        # If analysis did not yield material topics, check if input is exhaustively specified
+        if not material_topics and not self._is_exhaustively_specified(analysis):
+            material_topics = self._derive_missing_architectural_topics(analysis, already_asked)
+
         if not material_topics:
-            # No meaningful clarification required; immediately ready
+            # All architectural decisions are already confirmed; immediately ready
             session = InterviewSession(
                 original_input=input_text,
                 current_analysis=analysis,
@@ -438,6 +479,7 @@ class PromptInterviewer:
             analysis=analysis,
             already_asked=already_asked,
             use_llm=use_llm,
+            input_text=input_text,
         )
 
         asked = [q.topic for q in questions]
@@ -552,6 +594,7 @@ class PromptInterviewer:
                 analysis=updated_analysis,
                 already_asked=already_asked,
                 use_llm=use_llm,
+                input_text=session.original_input,
             )
             if next_questions:
                 session.questions = next_questions

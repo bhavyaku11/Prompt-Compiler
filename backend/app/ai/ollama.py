@@ -64,11 +64,12 @@ class OllamaClient:
             await self._client.aclose()
             self._client = None
 
-    async def generate(self, prompt: str) -> str:
+    async def generate(self, prompt: str, system: str | None = None) -> str:
         """Send a prompt to Ollama's /api/generate endpoint and return the generated text.
 
         Args:
             prompt: Non-empty prompt text to send to the model.
+            system: Optional system prompt to override the default system instruction.
 
         Returns:
             The generated response string from the model.
@@ -84,11 +85,13 @@ class OllamaClient:
             raise EmptyPromptError("Prompt must not be empty.")
 
         url = f"{self.base_url}/api/generate"
-        payload = {
+        payload: dict[str, Any] = {
             "model": self.model,
             "prompt": prompt,
             "stream": False,
         }
+        if system:
+            payload["system"] = system
 
         # Use the persistent client if managed in an async context, otherwise use a single-use client
         if self._client is not None and not self._client.is_closed:
@@ -96,6 +99,10 @@ class OllamaClient:
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             return await self._send_request(client, url, payload)
+
+    async def generate_async(self, prompt: str, system: str | None = None) -> str:
+        """Async alias for generate to support engine components expecting generate_async."""
+        return await self.generate(prompt=prompt, system=system)
 
     async def _send_request(self, client: httpx.AsyncClient, url: str, payload: dict) -> str:
         try:

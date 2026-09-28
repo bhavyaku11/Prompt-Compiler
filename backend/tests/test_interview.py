@@ -256,6 +256,29 @@ class TestPromptInterviewerUnit(unittest.IsolatedAsyncioTestCase):
                 answers=[InterviewAnswer(question_id="q1", answer="Vercel")],
             )
 
+    async def test_underspecified_input_generates_interview_questions(self) -> None:
+        """TEST: Under-specified input with empty missing_information derives questions."""
+        analysis = RequirementAnalysis(
+            intent="Build a web application",
+            task_type="build",
+            domain="web development",
+            confirmed_requirements=[],
+            missing_information=[],
+            constraints=[],
+            assumptions=[],
+        )
+        mock_req_engine = MagicMock(spec=RequirementEngine)
+        mock_req_engine.analyze_async = AsyncMock(return_value=analysis)
+
+        session = await self.interviewer.start_session_async(
+            input_text="Build a web application",
+            requirement_engine=mock_req_engine,
+            use_llm=False,
+        )
+        self.assertEqual(session.status, "in_progress")
+        self.assertGreater(len(session.questions), 0)
+        self.assertTrue(all(len(q.options) > 0 for q in session.questions))
+
     async def test_invalid_question_id_raises_invalid_answer_error(self) -> None:
         """TEST 9: Answering a non-existent question ID raises InvalidAnswerError."""
         analysis = RequirementAnalysis(
