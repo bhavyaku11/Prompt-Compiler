@@ -521,11 +521,11 @@ export function StudioView() {
         {/* Center Main Workspace */}
         <main
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto flex flex-col justify-between relative bg-background/50"
+          className="flex-1 overflow-y-auto flex flex-col justify-between relative bg-background"
         >
           {/* Background Grid Accent */}
           <div
-            className="absolute inset-0 bg-grid-pattern opacity-25 pointer-events-none"
+            className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none"
             aria-hidden="true"
           />
 

@@ -117,12 +117,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 flex flex-col justify-between border-r border-border/60 bg-card/70 dark:bg-[#0c0c0e]/80 backdrop-blur-xl transition-all duration-300 ease-in-out shrink-0 ${
-          isOpen ? 'w-64 translate-x-0' : '-translate-x-full md:translate-x-0 md:w-16'
+        className={`fixed md:static inset-y-0 left-0 z-50 flex flex-col justify-between border-r border-sidebar-border bg-sidebar backdrop-blur-xl transition-all duration-300 ease-in-out shrink-0 ${
+          isOpen ? 'w-72 translate-x-0' : '-translate-x-full md:translate-x-0 md:w-16'
         }`}
       >
         {/* Top: Header & New Compilation */}
-        <div className="flex flex-col gap-4 p-3.5">
+        <div className="flex flex-col gap-3.5 p-3.5 border-b border-sidebar-border/60">
           {/* Brand Logo & Collapse Toggle */}
           <div className="flex items-center justify-between gap-1">
             {isOpen ? (
@@ -133,7 +133,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 title="Return to Home"
               >
                 <Logo size="sm" />
-                <span className="text-xs font-bold tracking-tight text-foreground font-mono truncate">
+                <span className="text-xs font-bold tracking-tight text-foreground font-mono whitespace-nowrap">
                   Prompt Compiler
                 </span>
                 <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-semibold uppercase tracking-wider shrink-0">
@@ -190,12 +190,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
             <button
               type="button"
-              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary transition-colors cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-card text-foreground shadow-2xs border border-border/80 transition-colors cursor-pointer ${
                 !isOpen ? 'justify-center' : ''
               }`}
               title="Studio Workspace"
             >
-              <Layers className="h-4 w-4 shrink-0" />
+              <Layers className="h-4 w-4 shrink-0 text-primary" />
               {isOpen && <span>Studio</span>}
             </button>
           </div>
@@ -216,14 +216,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={() => onSelectProject(null)}
-              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                 selectedProjectId === null
-                  ? 'bg-muted text-foreground font-semibold'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  ? 'bg-card text-foreground font-semibold shadow-2xs border border-border/80'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-card/40'
               } ${!isOpen ? 'justify-center' : ''}`}
               title="Global Context (No Project)"
             >
-              <HardDrive className="h-4 w-4 shrink-0" />
+              <HardDrive className="h-4 w-4 shrink-0 text-muted-foreground" />
               {isOpen && <span className="truncate">Global Context</span>}
             </button>
 
@@ -408,15 +408,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Local Engine Status Box */}
           {isOpen && (
-            <div className="p-3 rounded-xl border border-border/40 bg-muted/30 space-y-1.5 text-xs font-mono">
+            <div className="p-3 rounded-xl border border-border/80 bg-card shadow-2xs space-y-1.5 text-xs font-mono">
               <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                 <span className="flex items-center gap-1.5">
-                  <Cpu className="h-3 w-3" />
+                  <Cpu className="h-3 w-3 text-primary" />
                   <span>LOCAL ENGINE</span>
                 </span>
                 <span
                   className={`h-2 w-2 rounded-full ${
-                    isBackendHealthy ? 'bg-emerald-500' : 'bg-amber-500'
+                    isBackendHealthy ? 'bg-emerald-500 shadow-xs shadow-emerald-500/50' : 'bg-amber-500'
                   }`}
                 />
               </div>
@@ -431,7 +431,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Bottom User Profile */}
-        <div className="p-3 border-t border-border/40 bg-muted/20">
+        <div className="p-3 border-t border-sidebar-border bg-sidebar/90">
           {isOpen ? (
             <div className="flex items-center gap-2.5">
               {user?.imageUrl ? (

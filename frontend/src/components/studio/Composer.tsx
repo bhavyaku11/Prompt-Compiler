@@ -99,7 +99,7 @@ export const Composer: React.FC<ComposerProps> = ({
                 onChangeInput(action.starter);
                 textareaRef.current?.focus();
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border/60 bg-card/60 backdrop-blur-sm text-foreground/80 hover:text-foreground hover:bg-muted/80 hover:border-border transition-all cursor-pointer shadow-xs active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border/80 bg-card text-foreground/90 hover:text-foreground hover:bg-secondary hover:border-primary/40 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95"
             >
               <Sparkles className="h-3 w-3 text-primary" />
               <span>{action.label}</span>
@@ -109,7 +109,7 @@ export const Composer: React.FC<ComposerProps> = ({
       )}
 
       {/* Main Composer Box */}
-      <div className="relative rounded-2xl border border-border/80 bg-card/95 dark:bg-[#121215]/95 backdrop-blur-xl shadow-2xl transition-all duration-200 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/30">
+      <div className="relative rounded-2xl border border-border/90 bg-card shadow-xl shadow-slate-200/50 dark:shadow-2xl dark:shadow-black/70 transition-all duration-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20">
         {/* Textarea */}
         <textarea
           ref={textareaRef}
@@ -123,7 +123,7 @@ export const Composer: React.FC<ComposerProps> = ({
         />
 
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 border-t border-border/30 bg-muted/20 rounded-b-2xl">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 border-t border-border/70 bg-toolbar rounded-b-2xl">
           {/* Left Controls */}
           <div className="flex items-center gap-1.5">
             {/* Attach button */}
@@ -138,7 +138,7 @@ export const Composer: React.FC<ComposerProps> = ({
                     : `Please select a project to enable local repository file ingestion.`
                 );
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-card hover:shadow-2xs transition-all cursor-pointer"
             >
               <Paperclip className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Attach</span>
@@ -149,10 +149,10 @@ export const Composer: React.FC<ComposerProps> = ({
               type="button"
               onClick={onToggleInterviewMode}
               title="Optional multi-turn clarification interview mode"
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer border ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer border ${
                 interviewMode
-                  ? 'bg-amber-500/10 text-amber-500 border-amber-500/30'
-                  : 'text-muted-foreground hover:text-foreground border-transparent hover:bg-muted/60'
+                  ? 'bg-amber-500/15 text-amber-500 border-amber-500/40 font-semibold shadow-2xs'
+                  : 'text-muted-foreground hover:text-foreground border-border/70 bg-card hover:bg-secondary shadow-2xs'
               }`}
             >
               <HelpCircle className="h-3.5 w-3.5" />
@@ -170,7 +170,7 @@ export const Composer: React.FC<ComposerProps> = ({
                   setIsProjectMenuOpen((prev) => !prev);
                   setIsAgentMenuOpen(false);
                 }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-border/50 bg-background/50 hover:bg-muted/60 text-foreground transition-colors cursor-pointer max-w-[140px] sm:max-w-[180px]"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-border/80 bg-card hover:bg-secondary text-foreground transition-all cursor-pointer max-w-[140px] sm:max-w-[180px] shadow-2xs"
               >
                 <FolderKanban className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span className="truncate">
@@ -245,7 +245,7 @@ export const Composer: React.FC<ComposerProps> = ({
                   setIsAgentMenuOpen((prev) => !prev);
                   setIsProjectMenuOpen(false);
                 }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-border/50 bg-background/50 hover:bg-muted/60 text-foreground transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-border/80 bg-card hover:bg-secondary text-foreground transition-all cursor-pointer shadow-2xs"
               >
                 <Bot className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span className="truncate">{selectedPreset.name}</span>
@@ -310,10 +310,10 @@ export const Composer: React.FC<ComposerProps> = ({
                   ? 'Semantic Knowledge Retrieval Enabled'
                   : 'Semantic Knowledge Retrieval Disabled'
               }
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer border ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer border ${
                 enableKnowledge
-                  ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
-                  : 'text-muted-foreground hover:text-foreground border-border/40 hover:bg-muted/60'
+                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-2xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground border-border/80 bg-card hover:bg-secondary shadow-2xs'
               }`}
             >
               <BookOpen className="h-3.5 w-3.5" />

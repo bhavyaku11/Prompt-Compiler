@@ -45,12 +45,12 @@ export const CompiledPromptCard: React.FC<CompiledPromptCardProps> = ({
   return (
     <>
       <div
-        className={`w-full rounded-2xl border border-border/80 bg-card/90 backdrop-blur-xl shadow-xl transition-all duration-200 overflow-hidden flex flex-col ${
+        className={`w-full rounded-2xl border border-border bg-card shadow-xl shadow-slate-200/50 dark:shadow-2xl dark:shadow-black/70 transition-all duration-200 overflow-hidden flex flex-col ${
           isExpanded ? 'fixed inset-4 z-50 max-w-none h-auto' : ''
         }`}
       >
         {/* Header Bar */}
-        <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5 border-b border-border/40 bg-muted/20">
+        <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5 border-b border-border/70 bg-toolbar">
           <div className="flex items-center gap-2.5">
             <div className="h-7 w-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-mono">
               <Terminal className="h-4 w-4 stroke-[2.2]" />

@@ -61,7 +61,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   };
 
   return (
-    <header className="h-14 border-b border-border/60 bg-card/60 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between z-30 shrink-0">
+    <header className="h-14 border-b border-topbar-border bg-topbar/95 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between z-30 shrink-0 shadow-2xs">
       {/* Left: Mobile Menu Toggle */}
       <div className="flex items-center gap-2">
         <button
@@ -79,7 +79,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           type="button"
           onClick={() => setIsProjectDropdownOpen((prev) => !prev)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border border-border/60 bg-background/50 hover:bg-muted text-foreground transition-all cursor-pointer shadow-2xs"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border border-border/80 bg-card hover:bg-muted text-foreground transition-all cursor-pointer shadow-2xs"
         >
           <FolderKanban className="h-3.5 w-3.5 text-primary" />
           <span className="max-w-[160px] truncate">
@@ -147,9 +147,9 @@ export const TopBar: React.FC<TopBarProps> = ({
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Backend / Local Engine Health Pill */}
         <div
-          className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border ${
+          className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border shadow-2xs ${
             isBackendHealthy
-              ? 'border-border/50 bg-background/50 text-foreground'
+              ? 'border-border/80 bg-card text-foreground'
               : 'border-red-500/30 bg-red-500/10 text-red-500'
           }`}
           title={
@@ -174,10 +174,10 @@ export const TopBar: React.FC<TopBarProps> = ({
 
         {/* Account / Network Connectivity Pill */}
         <div
-          className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border ${
+          className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border shadow-2xs ${
             !isOnline
               ? 'border-amber-500/30 bg-amber-500/10 text-amber-500'
-              : 'border-border/50 bg-background/50 text-foreground'
+              : 'border-border/80 bg-card text-foreground'
           }`}
           title={
             !isOnline

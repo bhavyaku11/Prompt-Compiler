@@ -84,9 +84,9 @@ export function InterviewSessionCard({
   ).length ?? 0;
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-5 sm:p-7 rounded-3xl border border-border/80 bg-card/85 backdrop-blur-xl shadow-2xl animate-in fade-in duration-300">
+    <div className="w-full max-w-4xl mx-auto p-5 sm:p-7 rounded-3xl border border-border bg-card shadow-2xl shadow-slate-200/50 dark:shadow-2xl dark:shadow-black/70 animate-in fade-in duration-300">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border/40 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border/70 gap-3">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
             <HelpCircle className="h-5 w-5" />
@@ -110,7 +110,7 @@ export function InterviewSessionCard({
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="self-end sm:self-center p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer disabled:opacity-50"
+          className="self-end sm:self-center p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer disabled:opacity-50"
           title="Cancel interview and return to composer"
         >
           <X className="h-4 w-4" />
@@ -118,7 +118,7 @@ export function InterviewSessionCard({
       </div>
 
       {/* Original Input Reference */}
-      <div className="mt-4 p-3.5 rounded-2xl bg-muted/40 border border-border/50 flex items-start gap-2.5 text-xs text-muted-foreground font-mono">
+      <div className="mt-4 p-3.5 rounded-2xl bg-toolbar border border-border/70 flex items-start gap-2.5 text-xs text-muted-foreground font-mono">
         <MessageSquareQuote className="h-4 w-4 mt-0.5 text-primary shrink-0" />
         <div className="flex-1 overflow-hidden text-ellipsis">
           <span className="font-semibold text-foreground/80">Requirement: </span>
@@ -136,7 +136,7 @@ export function InterviewSessionCard({
             return (
               <div
                 key={q.id}
-                className="p-4 sm:p-5 rounded-2xl border border-border/60 bg-background/50 hover:border-border transition-all duration-200"
+                className="p-4 sm:p-5 rounded-2xl border border-border/80 bg-toolbar/60 hover:bg-toolbar transition-all duration-200"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <span className="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-primary font-semibold">
