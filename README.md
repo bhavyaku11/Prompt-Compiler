@@ -6,7 +6,8 @@
 
 **A local-first macOS desktop application that compiles rough, unstructured human requirements into clear, validated, implementation-ready prompts for AI coding agents.**
 
-[![Release](https://img.shields.io/badge/release-v0.1.0--rc1-blue.svg)](#download)
+[![Release](https://img.shields.io/badge/release-v0.1.0--rc1-blue.svg)](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0-rc1)
+[![Download DMG](https://img.shields.io/badge/download-macOS%20Apple%20Silicon%20(.dmg)-2ea44f.svg)](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg)
 [![Platform](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon%20(arm64)-black.svg)](#system-requirements)
 [![Frontend](https://img.shields.io/badge/frontend-React%2019%20%7C%20TypeScript%20%7C%20Tailwind%20v4-61DAFB.svg)](#technology-stack)
 [![Backend](https://img.shields.io/badge/backend-FastAPI%20%7C%20Python%203.14%20%7C%20Uvicorn-009688.svg)](#technology-stack)
@@ -178,7 +179,21 @@ Prompt Compiler preserves underlying requirement semantics while adapting prompt
 
 ---
 
-## Download & Installation
+## Download
+
+### macOS — Apple Silicon (`arm64`)
+
+[![Download Prompt Compiler v0.1.0-rc1](https://img.shields.io/badge/Download-Prompt%20Compiler%20v0.1.0--rc1%20(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg)
+
+| Package | Target Architecture | Size | Direct Download Link |
+| :--- | :--- | :---: | :--- |
+| **Prompt Compiler DMG** | Apple Silicon (`arm64` — M1/M2/M3/M4) | 35.15 MiB | [**Prompt.Compiler_0.1.0_aarch64.dmg**](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg) |
+
+*Direct release page*: [GitHub Release v0.1.0-rc1](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0-rc1)
+
+---
+
+## Installation & Setup
 
 ### Option A: End Users (Desktop DMG)
 
@@ -188,7 +203,7 @@ Prompt Compiler preserves underlying requirement semantics while adapting prompt
    ollama pull qwen3:0.6b
    ```
 2. **Download Prompt Compiler**:
-   Visit the [Releases](https://github.com/bhavyaku11/Prompt-Compiler/releases) page and download `Prompt Compiler_0.1.0_aarch64.dmg`.
+   Click the direct link above or download [Prompt.Compiler_0.1.0_aarch64.dmg](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg) from the [Releases](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0-rc1) page.
 3. **Install**:
    Open the DMG file and drag **Prompt Compiler** into your `Applications` folder.
 4. **Launch**:
