@@ -8,17 +8,17 @@
 
 <br/>
 
-<a href="https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg">
+<a href="https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0/Prompt.Compiler_0.1.0_aarch64.dmg">
   <img src="https://img.shields.io/badge/⚡_Download_Prompt_Compiler-macOS_Apple_Silicon_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Download Prompt Compiler for macOS (.dmg)" height="44" />
 </a>
 
 <p>
-  <b>Direct 1-Click Download:</b> <a href="https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg"><b>Prompt.Compiler_0.1.0_aarch64.dmg</b></a> (35.15 MiB)<br/>
+  <b>Direct 1-Click Download:</b> <a href="https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0/Prompt.Compiler_0.1.0_aarch64.dmg"><b>Prompt.Compiler_0.1.0_aarch64.dmg</b></a> (35.15 MiB)<br/>
   <sub>Compatible with macOS 14+ on Apple Silicon (M1/M2/M3/M4) &bull; Requires local <a href="https://ollama.com/">Ollama</a></sub>
 </p>
 
-[![Release](https://img.shields.io/badge/release-v0.1.0--rc1-blue.svg)](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0-rc1)
-[![Direct Download](https://img.shields.io/badge/direct%20download-macOS%20DMG-2ea44f.svg)](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg)
+[![Release](https://img.shields.io/badge/release-v0.1.0-blue.svg)](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0)
+[![Direct Download](https://img.shields.io/badge/direct%20download-macOS%20DMG-2ea44f.svg)](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0/Prompt.Compiler_0.1.0_aarch64.dmg)
 [![Platform](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon%20(arm64)-black.svg)](#system-requirements)
 [![Frontend](https://img.shields.io/badge/frontend-React%2019%20%7C%20TypeScript%20%7C%20Tailwind%20v4-61DAFB.svg)](#technology-stack)
 [![Backend](https://img.shields.io/badge/backend-FastAPI%20%7C%20Python%203.14%20%7C%20Uvicorn-009688.svg)](#technology-stack)
@@ -194,13 +194,13 @@ Prompt Compiler preserves underlying requirement semantics while adapting prompt
 
 ### macOS — Apple Silicon (`arm64`)
 
-[![Download Prompt Compiler v0.1.0-rc1](https://img.shields.io/badge/Download-Prompt%20Compiler%20v0.1.0--rc1%20(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg)
+[![Download Prompt Compiler v0.1.0](https://img.shields.io/badge/Download-Prompt%20Compiler%20v0.1.0%20(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0/Prompt.Compiler_0.1.0_aarch64.dmg)
 
 | Package | Target Architecture | Size | Direct Download Link |
 | :--- | :--- | :---: | :--- |
-| **Prompt Compiler DMG** | Apple Silicon (`arm64` — M1/M2/M3/M4) | 35.15 MiB | [**Prompt.Compiler_0.1.0_aarch64.dmg**](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg) |
+| **Prompt Compiler DMG** | Apple Silicon (`arm64` — M1/M2/M3/M4) | 35.15 MiB | [**Prompt.Compiler_0.1.0_aarch64.dmg**](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0/Prompt.Compiler_0.1.0_aarch64.dmg) |
 
-*Direct release page*: [GitHub Release v0.1.0-rc1](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0-rc1)
+*Direct release page*: [GitHub Release v0.1.0](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0)
 
 ---
 
@@ -214,7 +214,7 @@ Prompt Compiler preserves underlying requirement semantics while adapting prompt
    ollama pull qwen3:0.6b
    ```
 2. **Download Prompt Compiler**:
-   Click the direct link above or download [Prompt.Compiler_0.1.0_aarch64.dmg](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0-rc1/Prompt.Compiler_0.1.0_aarch64.dmg) from the [Releases](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0-rc1) page.
+   Click the direct link above or download [Prompt.Compiler_0.1.0_aarch64.dmg](https://github.com/bhavyaku11/Prompt-Compiler/releases/download/v0.1.0/Prompt.Compiler_0.1.0_aarch64.dmg) from the [Releases](https://github.com/bhavyaku11/Prompt-Compiler/releases/tag/v0.1.0) page.
 3. **Install**:
    Open the DMG file and drag **Prompt Compiler** into your `Applications` folder.
 4. **Launch**:
@@ -392,7 +392,7 @@ Prompt Compiler v0.1.0 Release Candidate has undergone rigorous automated testin
 
 The Prompt Compiler project has completed all 36 defined tasks in the product roadmap. The current release is:
 
-**`v0.1.0-rc1 (Release Candidate)`**
+**`v0.1.0`**
 
 All foundational features across Phase 1 (Core Compiler), Phase 2 (Memory & RAG), and Phase 3 (Desktop Packaging & Release Verification) are complete and validated. Future work is focused on community feedback, maintenance, and platform expansions.
 
