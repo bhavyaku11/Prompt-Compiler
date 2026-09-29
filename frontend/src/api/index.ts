@@ -10,3 +10,4 @@ export * from './knowledge';
 export * from './interview';
 export * from './health';
 export * from './tauri-bridge';
+export * from './auth';

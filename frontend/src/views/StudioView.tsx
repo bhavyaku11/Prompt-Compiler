@@ -39,13 +39,19 @@ import type {
   CompileResponse,
   InterviewSessionResponse,
   InterviewAnswer,
+  CompilationHistoryItem,
 } from '@/types/api';
 
 export function StudioView() {
   const navigate = useNavigate();
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
-  const displayName = user?.firstName || user?.username || (user?.fullName ? user.fullName.split(' ')[0] : 'there');
+  const desktopUserRaw = typeof window !== 'undefined' ? sessionStorage.getItem('desktop_auth_user') : null;
+  let desktopUser: { firstName?: string; lastName?: string; email?: string } | null = null;
+  try {
+    if (desktopUserRaw) desktopUser = JSON.parse(desktopUserRaw);
+  } catch {}
+  const displayName = user?.firstName || desktopUser?.firstName || user?.username || (user?.fullName ? user.fullName.split(' ')[0] : (desktopUser?.email ? desktopUser.email.split('@')[0] : 'there'));
 
   // Core Studio State
   const [projects, setProjects] = useState<Project[]>([]);
@@ -54,6 +60,18 @@ export function StudioView() {
   const [targetAgent, setTargetAgent] = useState<string>('cursor');
   const [enableKnowledge, setEnableKnowledge] = useState<boolean>(true);
   const [interviewMode, setInterviewMode] = useState<boolean>(false);
+
+  // Compilation History State
+  const [history, setHistory] = useState<CompilationHistoryItem[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const raw = localStorage.getItem('prompt_compiler_history');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
 
   // Composer & Execution State
   const [input, setInput] = useState<string>('');
@@ -77,6 +95,66 @@ export function StudioView() {
   const [loadTimedOut, setLoadTimedOut] = useState<boolean>(false);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const saveHistoryItem = useCallback((promptText: string, compileRes: CompileResponse) => {
+    const item: CompilationHistoryItem = {
+      id: Date.now().toString(),
+      prompt: promptText,
+      compiledPrompt: compileRes.result || '',
+      targetAgent: compileRes.target_agent || targetAgent,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      dateStr: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      projectId: compileRes.project_id || selectedProjectId,
+      result: compileRes,
+    };
+    setHistory((prev) => {
+      const updated = [item, ...prev.filter((h) => h.id !== item.id)].slice(0, 50);
+      try {
+        localStorage.setItem('prompt_compiler_history', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    setSelectedHistoryId(item.id);
+  }, [targetAgent, selectedProjectId]);
+
+  const handleSelectHistory = useCallback((item: CompilationHistoryItem) => {
+    setSelectedHistoryId(item.id);
+    if (item.result) {
+      setResult(item.result);
+      setSubmittedPrompt(item.prompt);
+      setInput(item.prompt);
+      setCompiledAt(item.timestamp);
+      if (item.projectId !== undefined) {
+        setSelectedProjectId(item.projectId);
+      }
+      if (item.targetAgent) {
+        setTargetAgent(item.targetAgent);
+      }
+    } else {
+      setInput(item.prompt);
+      setSubmittedPrompt(item.prompt);
+      setCompiledAt(item.timestamp);
+    }
+  }, []);
+
+  const handleDeleteHistory = useCallback((id: string) => {
+    setHistory((prev) => {
+      const updated = prev.filter((h) => h.id !== id);
+      try {
+        localStorage.setItem('prompt_compiler_history', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    setSelectedHistoryId((curr) => (curr === id ? null : curr));
+  }, []);
+
+  const handleClearHistory = useCallback(() => {
+    setHistory([]);
+    try {
+      localStorage.removeItem('prompt_compiler_history');
+    } catch {}
+    setSelectedHistoryId(null);
+  }, []);
 
   // Network online/offline monitoring
   useEffect(() => {
@@ -174,14 +252,16 @@ export function StudioView() {
 
   // Authentication check
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    const desktopToken = typeof window !== 'undefined' ? sessionStorage.getItem('desktop_auth_token') : null;
+    if (isLoaded && !isSignedIn && !desktopToken) {
       navigate('/auth', { replace: true });
     }
   }, [isLoaded, isSignedIn, navigate]);
 
   useEffect(() => {
     let isMounted = true;
-    if (isLoaded && isSignedIn) {
+    const desktopToken = typeof window !== 'undefined' ? sessionStorage.getItem('desktop_auth_token') : null;
+    if ((isLoaded && isSignedIn) || desktopToken) {
       void (async () => {
         if (isMounted) {
           await loadInitialData();
@@ -269,6 +349,7 @@ export function StudioView() {
           await new Promise((resolve) => setTimeout(resolve, 350));
           setResult(response);
           setCompiledAt(new Date().toLocaleTimeString());
+          saveHistoryItem(trimmedInput, response);
           setInput('');
         } else {
           // Questions require clarification by user
@@ -287,6 +368,7 @@ export function StudioView() {
         await new Promise((resolve) => setTimeout(resolve, 350));
         setResult(response);
         setCompiledAt(new Date().toLocaleTimeString());
+        saveHistoryItem(trimmedInput, response);
         setInput(''); // Clear input for next instruction
       }
     } catch (err: unknown) {
@@ -326,6 +408,7 @@ export function StudioView() {
         await new Promise((resolve) => setTimeout(resolve, 350));
         setResult(response);
         setCompiledAt(new Date().toLocaleTimeString());
+        saveHistoryItem(submittedPrompt || input, response);
         setActiveInterviewSession(null);
         setInput('');
       } else {
@@ -358,6 +441,7 @@ export function StudioView() {
       await new Promise((resolve) => setTimeout(resolve, 350));
       setResult(response);
       setCompiledAt(new Date().toLocaleTimeString());
+      saveHistoryItem(submittedPrompt || input, response);
       setActiveInterviewSession(null);
       setInput('');
     } catch (err: unknown) {
@@ -381,6 +465,7 @@ export function StudioView() {
   };
 
   const handleNewCompilation = () => {
+    setSelectedHistoryId(null);
     setResult(null);
     setCompiledAt('');
     setActiveInterviewSession(null);
@@ -427,8 +512,11 @@ export function StudioView() {
     }
   }, [selectedProjectId]);
 
+  const desktopToken = typeof window !== 'undefined' ? sessionStorage.getItem('desktop_auth_token') : null;
+  const isAuthed = isSignedIn || Boolean(desktopToken);
+
   // If loading took too long or offline while trying to initialize Clerk
-  if (!isLoaded && (loadTimedOut || !isOnline)) {
+  if (!isLoaded && !desktopToken && (loadTimedOut || !isOnline)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-4">
         <div className="max-w-md w-full p-6 sm:p-8 rounded-3xl border border-border/80 bg-card/80 backdrop-blur-xl shadow-2xl flex flex-col items-center text-center gap-4 animate-in fade-in duration-300">
@@ -469,7 +557,7 @@ export function StudioView() {
     );
   }
 
-  if (!isLoaded) {
+  if (!isLoaded && !desktopToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <div className="flex flex-col items-center gap-3">
@@ -480,7 +568,7 @@ export function StudioView() {
     );
   }
 
-  if (!isSignedIn) {
+  if (!isAuthed) {
     return null;
   }
 
@@ -493,6 +581,11 @@ export function StudioView() {
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen((prev) => !prev)}
         onNewCompilation={handleNewCompilation}
+        history={history}
+        selectedHistoryId={selectedHistoryId}
+        onSelectHistory={handleSelectHistory}
+        onDeleteHistory={handleDeleteHistory}
+        onClearHistory={handleClearHistory}
         projects={projects}
         selectedProjectId={selectedProjectId}
         onSelectProject={setSelectedProjectId}

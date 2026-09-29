@@ -153,7 +153,15 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
       } catch (err) {
         console.warn('[client] Failed to get auth token from getter:', err);
       }
-    } else if (typeof window !== 'undefined' && window.Clerk?.session) {
+    }
+    if (!token && typeof window !== 'undefined') {
+      try {
+        token = sessionStorage.getItem('desktop_auth_token');
+      } catch {
+        // ignore
+      }
+    }
+    if (!token && typeof window !== 'undefined' && window.Clerk?.session) {
       try {
         token = await window.Clerk.session.getToken();
       } catch (err) {

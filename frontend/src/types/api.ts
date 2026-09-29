@@ -247,3 +247,15 @@ export interface IngestDirectoryRequest {
   recursive?: boolean;
 }
 
+export interface CompilationHistoryItem {
+  id: string;
+  prompt: string;
+  compiledPrompt: string;
+  targetAgent: string;
+  timestamp: string;
+  dateStr?: string;
+  projectId?: string | null;
+  result?: CompileResponse;
+}
+
+

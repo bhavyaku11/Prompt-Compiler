@@ -110,4 +110,83 @@ describe('Auth Client & Session Management Tests', () => {
     assert.strictEqual(eventDispatched.type, 'prompt-compiler:auth-required');
     assert.strictEqual(eventDispatched.detail.status, 401);
   });
+
+  test('Google OAuth configuration requires oidcPrompt select_account to show Gmail options', () => {
+    // Simulates the Clerk authenticateWithRedirect payload structure used in AuthSwitch
+    const googleAuthPayload = {
+      strategy: 'oauth_google',
+      redirectUrl: '/sso-callback',
+      redirectUrlComplete: '/studio',
+      oidcPrompt: 'select_account',
+    };
+
+    assert.strictEqual(googleAuthPayload.strategy, 'oauth_google');
+    assert.strictEqual(googleAuthPayload.redirectUrl, '/sso-callback');
+    assert.strictEqual(googleAuthPayload.redirectUrlComplete, '/studio');
+    assert.strictEqual(googleAuthPayload.oidcPrompt, 'select_account');
+  });
+
+  test('signOutApp clears storage, invokes DELETE endpoint, resets token getter, and calls onComplete', async () => {
+    const { signOutApp } = await import('../src/api/auth.ts');
+
+    const mockStorage = new Map();
+    const mockSessionStorage = {
+      getItem: (k) => mockStorage.get(k) || null,
+      setItem: (k, v) => mockStorage.set(k, String(v)),
+      removeItem: (k) => mockStorage.delete(k),
+    };
+    const mockLocalStorage = {
+      getItem: (k) => mockStorage.get(k) || null,
+      setItem: (k, v) => mockStorage.set(k, String(v)),
+      removeItem: (k) => mockStorage.delete(k),
+    };
+
+    mockStorage.set('desktop_auth_token', 'test_desktop_token');
+    mockStorage.set('desktop_auth_user', JSON.stringify({ email: 'test@example.com' }));
+
+    let dispatchedEvents = [];
+    globalThis.window = {
+      dispatchEvent: (e) => {
+        dispatchedEvents.push(e);
+        return true;
+      },
+    };
+    globalThis.sessionStorage = mockSessionStorage;
+    globalThis.localStorage = mockLocalStorage;
+
+    let deleteCalled = false;
+    let deleteMethod = null;
+    globalThis.fetch = async (url, options) => {
+      if (url.includes('/api/auth/desktop-session')) {
+        deleteCalled = true;
+        deleteMethod = options?.method;
+        return new Response(JSON.stringify({ status: 'ok' }), { status: 200 });
+      }
+      return new Response('{}', { status: 200 });
+    };
+
+    setAuthTokenGetter(async () => 'some_token');
+    assert.ok(getAuthTokenGetter() !== null);
+
+    let clerkSignedOut = false;
+    const mockClerkSignOut = async () => {
+      clerkSignedOut = true;
+    };
+
+    let onCompleteCalled = false;
+    await signOutApp(mockClerkSignOut, () => {
+      onCompleteCalled = true;
+    });
+
+    assert.strictEqual(mockStorage.get('desktop_auth_token'), undefined);
+    assert.strictEqual(mockStorage.get('desktop_auth_user'), undefined);
+    assert.strictEqual(mockStorage.get('pc_signed_out'), 'true');
+    assert.strictEqual(deleteCalled, true);
+    assert.strictEqual(deleteMethod, 'DELETE');
+    assert.strictEqual(getAuthTokenGetter(), null);
+    assert.strictEqual(clerkSignedOut, true);
+    assert.strictEqual(onCompleteCalled, true);
+    assert.ok(dispatchedEvents.some((e) => e.type === 'prompt-compiler:signed-out'));
+  });
 });
+

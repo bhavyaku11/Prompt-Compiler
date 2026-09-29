@@ -1,32 +1,24 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@clerk/react';
 import { Terminal, ArrowUpRight, Sparkles, CheckCircle2, ShieldCheck, Cpu } from 'lucide-react';
 import { GithubIcon } from '@/components/ui/icons';
 import { MagneticButton } from '@/components/ui/magnetic-button';
+import { getDesktopToken } from '@/api/auth';
 
 export const Hero = () => {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
+  const isAuthed = isSignedIn || Boolean(getDesktopToken());
 
   const handleStartCompiling = () => {
-    navigate('/auth');
+    navigate(isAuthed ? '/studio' : '/auth');
   };
 
 
   return (
-    <section className="relative z-10 flex min-h-[calc(100vh-68px)] flex-col items-center justify-center px-6 py-4 sm:py-6 max-w-5xl mx-auto w-full text-center">
-      
-      {/* Eyebrow badge */}
-      <div 
-        data-magnetic
-        className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-neutral-300 dark:border-white/15 bg-neutral-100/90 dark:bg-white/[0.06] backdrop-blur-md mb-5 transition-colors duration-200 hover:border-neutral-400 dark:hover:border-white/30 cursor-default"
-      >
-        <span className="flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
-        <span className="text-xs font-mono font-medium tracking-wide text-neutral-800 dark:text-neutral-200 uppercase">
-          Deterministic Prompt Engineering • Local-First
-        </span>
-      </div>
-
+    <section className="relative z-10 flex min-h-[calc(100vh-68px)] flex-col items-center justify-center px-6 pt-6 pb-6 sm:pt-10 sm:pb-8 max-w-5xl mx-auto w-full text-center">
       {/* Main Headline */}
-      <div className="mb-4">
+      <div className="mb-4 sm:mb-5">
         <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.02] text-foreground">
           Turn rough ideas into <br className="hidden sm:inline" />
           <span className="text-neutral-600 dark:text-neutral-400">implementation-ready prompts.</span>
@@ -35,7 +27,7 @@ export const Hero = () => {
 
       {/* Supporting Text */}
       <p className="max-w-2xl text-base sm:text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed font-normal mb-6">
-        A local-first compiler that extracts confirmed requirements, eliminates hallucinations, applies canonical architecture templates, and formats prompts for modern AI coding agents.
+        Extract confirmed requirements, eliminate hallucinations, and compile structured prompts for AI coding agents.
       </p>
 
       {/* Call to Action Buttons: Styled using Footer Glass Pill Theme with Magnetic Floating Effect */}
@@ -56,7 +48,7 @@ export const Hero = () => {
         {/* Secondary CTA - View on GitHub */}
         <MagneticButton
           as="a"
-          href="https://github.com/bhavyaku11"
+          href="https://github.com/bhavyaku11/Prompt-Compiler"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="View on GitHub"
@@ -72,15 +64,25 @@ export const Hero = () => {
       {/* Dynamic contrast: dark card on light background, white card on dark background */}
       <div 
         data-magnetic
-        className="relative flex h-18 sm:h-20 w-full max-w-md sm:max-w-lg items-center justify-between overflow-hidden rounded-2xl bg-neutral-900 text-white dark:bg-white dark:text-black px-6 sm:px-8 shadow-2xl mb-6 transition-transform duration-200 hover:scale-[1.02] cursor-pointer group border border-neutral-800 dark:border-white/20"
+        role="button"
+        tabIndex={0}
+        onClick={handleStartCompiling}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleStartCompiling();
+          }
+        }}
+        aria-label="Open Studio - Rough Idea to Agent Prompt"
+        className="relative flex h-18 sm:h-20 w-full max-w-md sm:max-w-lg items-center justify-between overflow-hidden rounded-2xl bg-neutral-900 text-white dark:bg-white dark:text-black px-6 sm:px-8 shadow-2xl mb-6 transition-transform duration-200 hover:scale-[1.02] cursor-pointer group border border-neutral-800 dark:border-white/20 select-none"
       >
-        <span className="text-lg sm:text-xl font-bold tracking-tight text-white dark:text-black text-left">
+        <span className="text-lg sm:text-xl font-bold tracking-tight text-white dark:text-black text-left pointer-events-none">
           Rough Idea → Agent Prompt
         </span>
 
         {/* Inverted icon circle */}
-        <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-white text-black dark:bg-black dark:text-white transition-transform duration-200 group-hover:scale-105 ml-4">
-          <ArrowUpRight className="h-5 w-5 stroke-[2] pointer-events-none" />
+        <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-white text-black dark:bg-black dark:text-white transition-transform duration-200 group-hover:scale-105 ml-4 pointer-events-none">
+          <ArrowUpRight className="h-5 w-5 stroke-[2]" />
         </div>
       </div>
 
@@ -90,7 +92,7 @@ export const Hero = () => {
           <Cpu className="h-3.5 w-3.5 text-neutral-700 dark:text-neutral-300" />
           Target Agent Presets:
         </span>
-        {['Cursor', 'Claude Code', 'Cline', 'Windsurf', 'Generic'].map((agent) => (
+        {['Cursor', 'Claude Code', 'Antigravity', 'Windsurf', 'Codex'].map((agent) => (
           <span 
             key={agent}
             data-magnetic
@@ -105,15 +107,15 @@ export const Hero = () => {
       <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-xs text-neutral-800 dark:text-neutral-200 font-medium">
         <div className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          <span>Local Ollama Qwen3 4B</span>
+          <span>Local Ollama Engine</span>
         </div>
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          <span>Strict Precedence Hierarchy</span>
+          <span>Strict Precedence</span>
         </div>
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          <span>Deterministic Context Memory</span>
+          <span>Deterministic Memory</span>
         </div>
       </div>
 

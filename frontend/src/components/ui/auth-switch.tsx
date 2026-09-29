@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSignIn, useSignUp } from "@clerk/react/legacy";
 import { Mail, Lock, User, ArrowLeft, KeyRound } from "lucide-react";
@@ -9,6 +7,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { MagneticCursor } from "@/components/ui/magnetic-cursor";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Logo } from "@/components/ui/Logo";
+import { isTauri, openExternalUrl, resolveBackendUrl } from "@/api/tauri-bridge";
+import { getApiBaseUrl, setAuthTokenGetter } from "@/api/client";
 import authBg from "@/assets/auth-bg.jpg";
 import authSignupBg from "@/assets/auth-signup-bg.png";
 
@@ -41,6 +41,8 @@ export default function AuthSwitch({ initialSignUp = false, onBackToHome }: Auth
   const [isVerifying, setIsVerifying] = useState(false);
   const [authStatus, setAuthStatus] = useState<{ text: string; type: "info" | "success" | "error" } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBrowserAuthWaiting, setIsBrowserAuthWaiting] = useState(false);
+  const browserAuthAbortRef = useRef<boolean>(false);
 
   // Sign-in Device Trust / 2FA verification states
   const [isVerifyingDevice, setIsVerifyingDevice] = useState(false);
@@ -468,8 +470,103 @@ export default function AuthSwitch({ initialSignUp = false, onBackToHome }: Auth
     }
   };
 
+  const handleCancelBrowserAuth = () => {
+    browserAuthAbortRef.current = true;
+    setIsBrowserAuthWaiting(false);
+    setIsSubmitting(false);
+    setAuthStatus(null);
+  };
+
   const handleGoogleAuth = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
+
+    if (isTauri()) {
+      setIsSubmitting(true);
+      setIsBrowserAuthWaiting(true);
+      browserAuthAbortRef.current = false;
+      try {
+        sessionStorage.removeItem("pc_signed_out");
+      } catch {}
+      setAuthStatus({
+        text: "Opening Google Sign-In in Chrome... Please select your Gmail account in your browser.",
+        type: "info",
+      });
+
+      try {
+        const base = getApiBaseUrl() || (await resolveBackendUrl()) || "http://127.0.0.1:18000";
+        const authStartUrl = `${base}/api/auth/google-start`;
+
+        await openExternalUrl(authStartUrl);
+
+        // Start polling loop for desktop-session
+        const startTime = Date.now();
+        const maxWaitMs = 300000; // 5 minutes
+
+        const pollSession = async () => {
+          while (!browserAuthAbortRef.current && Date.now() - startTime < maxWaitMs) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            if (browserAuthAbortRef.current) break;
+
+            try {
+              const res = await fetch(`${base}/api/auth/desktop-session`);
+              if (res.ok) {
+                const data = await res.json();
+                if (data.authenticated && data.token) {
+                  try {
+                    sessionStorage.removeItem("pc_signed_out");
+                  } catch {}
+                  const userPayload = {
+                    id: data.user_id,
+                    email: data.email,
+                    firstName: data.first_name,
+                    lastName: data.last_name,
+                    imageUrl: data.image_url || null,
+                  };
+                  sessionStorage.setItem("desktop_auth_token", data.token);
+                  localStorage.setItem("desktop_auth_token", data.token);
+                  sessionStorage.setItem("desktop_auth_user", JSON.stringify(userPayload));
+                  localStorage.setItem("desktop_auth_user", JSON.stringify(userPayload));
+                  setAuthTokenGetter(async () => data.token);
+                  setAuthStatus({
+                    text: `Google account connected! Welcome ${data.first_name || data.email || ""}...`,
+                    type: "success",
+                  });
+                  setIsBrowserAuthWaiting(false);
+                  setIsSubmitting(false);
+                  setTimeout(() => {
+                    navigate("/studio");
+                  }, 400);
+                  return;
+                }
+              }
+            } catch {
+              // network retry
+            }
+          }
+
+          if (!browserAuthAbortRef.current) {
+            setAuthStatus({
+              text: "Google sign-in timed out. Please try again.",
+              type: "error",
+            });
+            setIsBrowserAuthWaiting(false);
+            setIsSubmitting(false);
+          }
+        };
+
+        void pollSession();
+      } catch (err: unknown) {
+        console.error('[auth-switch] Failed to launch Google authentication in Chrome:', err);
+        setIsBrowserAuthWaiting(false);
+        setIsSubmitting(false);
+        setAuthStatus({
+          text: "Could not open Google authentication in Chrome. Please ensure the backend is running.",
+          type: "error",
+        });
+      }
+      return;
+    }
+
     setIsSubmitting(true);
     setAuthStatus({ text: "Connecting to Google authentication...", type: "info" });
 
@@ -479,12 +576,14 @@ export default function AuthSwitch({ initialSignUp = false, onBackToHome }: Auth
           strategy: "oauth_google",
           redirectUrl: "/sso-callback",
           redirectUrlComplete: "/studio",
+          oidcPrompt: "select_account",
         });
       } else if (signIn) {
         await signIn.authenticateWithRedirect({
           strategy: "oauth_google",
           redirectUrl: "/sso-callback",
           redirectUrlComplete: "/studio",
+          oidcPrompt: "select_account",
         });
       }
     } catch (err: unknown) {
@@ -1392,14 +1491,9 @@ export default function AuthSwitch({ initialSignUp = false, onBackToHome }: Auth
           }}
         >
           <Logo size="lg" />
-          <div className="flex flex-col">
-            <span className="text-base sm:text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
-              Prompt Compiler
-              <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-200/80 dark:bg-white/10 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-white/15 hidden sm:inline-block">
-                Local First
-              </span>
-            </span>
-          </div>
+          <span className="text-base sm:text-lg font-bold tracking-tight text-foreground">
+            Prompt Compiler
+          </span>
         </div>
 
         {/* Right Side: Toggle button on left of right side, then Back to Home on very right (both with floating effect) */}
@@ -1642,11 +1736,28 @@ export default function AuthSwitch({ initialSignUp = false, onBackToHome }: Auth
                     onClick={handleGoogleAuth}
                     disabled={isSubmitting}
                     className="social-icon-btn cursor-pointer transition-transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
-                    aria-label="Continue with Google"
+                    aria-label="Continue with Google (Choose Gmail account)"
+                    title="Continue with Google (Choose Gmail account)"
                   >
                     <GoogleIcon className="h-5 w-5 pointer-events-none" />
                   </button>
                 </div>
+
+                {isBrowserAuthWaiting && (
+                  <div className="mt-3 flex flex-col items-center gap-1.5 animate-in fade-in duration-200">
+                    <p className="text-[11px] text-amber-500 font-mono flex items-center gap-1.5">
+                      <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                      Sign-in opened in Chrome... Select your Gmail account
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleCancelBrowserAuth}
+                      className="text-[11px] text-muted-foreground hover:text-foreground underline cursor-pointer"
+                    >
+                      Cancel browser sign-in
+                    </button>
+                  </div>
+                )}
               </form>
             )}
 
@@ -1835,11 +1946,28 @@ export default function AuthSwitch({ initialSignUp = false, onBackToHome }: Auth
                     onClick={handleGoogleAuth}
                     disabled={isSubmitting}
                     className="social-icon-btn cursor-pointer transition-transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
-                    aria-label="Continue with Google"
+                    aria-label="Continue with Google (Choose Gmail account)"
+                    title="Continue with Google (Choose Gmail account)"
                   >
                     <GoogleIcon className="h-5 w-5 pointer-events-none" />
                   </button>
                 </div>
+
+                {isBrowserAuthWaiting && (
+                  <div className="mt-3 flex flex-col items-center gap-1.5 animate-in fade-in duration-200">
+                    <p className="text-[11px] text-amber-500 font-mono flex items-center gap-1.5">
+                      <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                      Sign-in opened in Chrome... Select your Gmail account
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleCancelBrowserAuth}
+                      className="text-[11px] text-muted-foreground hover:text-foreground underline cursor-pointer"
+                    >
+                      Cancel browser sign-in
+                    </button>
+                  </div>
+                )}
               </form>
             )}
 

@@ -1,10 +1,10 @@
-"use client";
-
+import { useNavigate } from "react-router-dom";
 import { MotionFooter, MagneticButton } from "@/components/ui/motion-footer";
 import { GithubIcon } from "@/components/ui/icons";
 import { Terminal, ArrowUpRight, Sparkles } from "lucide-react";
 
 export function LandingFooter() {
+  const navigate = useNavigate();
   const marqueeItems = (
     <div className="flex items-center space-x-12 px-6">
       <span className="text-neutral-900 dark:text-neutral-200 font-bold">PROMPT COMPILER</span>
@@ -44,7 +44,7 @@ export function LandingFooter() {
       {/* Secondary Action Link */}
       <MagneticButton
         as="a"
-        href="https://github.com/bhavyaku11"
+        href="https://github.com/bhavyaku11/Prompt-Compiler"
         target="_blank"
         rel="noopener noreferrer"
         className="footer-glass-pill px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-neutral-800 dark:text-neutral-200 font-semibold text-sm md:text-base flex items-center gap-3 group hover:text-black dark:hover:text-white"
@@ -59,51 +59,47 @@ export function LandingFooter() {
   const secondaryLinks = (
     <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 w-full mt-2">
       <MagneticButton
-        as="a"
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white"
+        as="button"
+        type="button"
+        onClick={() => navigate("/docs/product")}
+        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white cursor-pointer transition-colors"
       >
         Product
       </MagneticButton>
 
       <MagneticButton
-        as="a"
-        href="#workflow-timeline"
-        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white"
+        as="button"
+        type="button"
+        onClick={() => navigate("/docs/workflow")}
+        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white cursor-pointer transition-colors"
       >
         Workflow
       </MagneticButton>
 
       <MagneticButton
-        as="a"
-        href="#workflow-timeline"
-        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white"
+        as="button"
+        type="button"
+        onClick={() => navigate("/docs/architecture")}
+        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white cursor-pointer transition-colors"
       >
         Architecture
       </MagneticButton>
 
       <MagneticButton
         as="a"
-        href="https://github.com/bhavyaku11"
+        href="https://github.com/bhavyaku11/Prompt-Compiler"
         target="_blank"
         rel="noopener noreferrer"
-        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white"
+        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white cursor-pointer transition-colors"
       >
         GitHub
       </MagneticButton>
 
       <MagneticButton
-        as="a"
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white"
+        as="button"
+        type="button"
+        onClick={() => navigate("/docs/documentation")}
+        className="footer-glass-pill px-5 py-2.5 rounded-full text-neutral-600 dark:text-neutral-400 font-medium text-xs md:text-sm hover:text-black dark:hover:text-white cursor-pointer transition-colors"
       >
         Documentation
       </MagneticButton>

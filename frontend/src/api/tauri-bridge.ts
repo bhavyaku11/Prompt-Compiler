@@ -160,3 +160,52 @@ export async function initTauriBridge(): Promise<void> {
   }
 }
 
+/**
+ * Open an external URL in Google Chrome (with default browser fallback).
+ * In Tauri desktop mode:
+ *   - Attempts Rust IPC command `open_in_browser`
+ *   - Calls backend `/api/auth/open-browser` as robust fallback
+ * In browser mode:
+ *   - Opens target in a new window/tab
+ */
+export async function openExternalUrl(url: string): Promise<boolean> {
+  if (!url || (!url.startsWith('http://') && !url.startsWith('https://'))) {
+    console.warn('[tauri-bridge] Invalid URL scheme for openExternalUrl:', url);
+    return false;
+  }
+
+  if (isTauri()) {
+    // 1. Try Tauri IPC command
+    try {
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('open_in_browser', { url });
+      return true;
+    } catch (err) {
+      console.debug('[tauri-bridge] Tauri open_in_browser invoke error, falling back to backend:', err);
+    }
+
+    // 2. Fallback to FastAPI sidecar open-browser endpoint
+    try {
+      const base = getApiBaseUrl() || (await resolveBackendUrl()) || 'http://127.0.0.1:18000';
+      const res = await fetch(`${base}/api/auth/open-browser`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+      if (res.ok) {
+        return true;
+      }
+    } catch (err) {
+      console.warn('[tauri-bridge] Backend open-browser endpoint error:', err);
+    }
+  }
+
+  // 3. Fallback to standard browser window.open
+  if (typeof window !== 'undefined') {
+    window.open(url, '_blank');
+    return true;
+  }
+  return false;
+}
+
+

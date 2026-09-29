@@ -57,7 +57,7 @@ export const WorkflowTimeline = ({
         </p>
         <p className="text-sm text-neutral-600 dark:text-neutral-300 font-mono flex items-center gap-1.5">
           <Sparkles className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
-          Formatted for Cursor, Claude Code, Cline, Windsurf, or Generic agents.
+          Formatted for Cursor, Claude Code, Antigravity, Windsurf, or Codex agents.
         </p>
       </div>
     </section>

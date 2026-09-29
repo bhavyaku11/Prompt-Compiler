@@ -31,4 +31,28 @@ describe('Tauri Bridge & Folder Picker Tests', () => {
     const { isTauri } = await import('../src/api/tauri-bridge.ts');
     assert.strictEqual(isTauri(), true);
   });
+
+  test('openExternalUrl rejects invalid URL schemes', async () => {
+    const { openExternalUrl } = await import('../src/api/tauri-bridge.ts');
+    const res = await openExternalUrl('javascript:alert(1)');
+    assert.strictEqual(res, false);
+  });
+
+  test('openExternalUrl invokes window.open in browser mode', async () => {
+    let openedUrl = null;
+    globalThis.window = {
+      open: (url, target) => {
+        openedUrl = { url, target };
+        return {};
+      },
+    };
+    const { openExternalUrl } = await import('../src/api/tauri-bridge.ts');
+    const res = await openExternalUrl('http://127.0.0.1:18000/api/auth/google-start');
+    assert.strictEqual(res, true);
+    assert.deepStrictEqual(openedUrl, {
+      url: 'http://127.0.0.1:18000/api/auth/google-start',
+      target: '_blank',
+    });
+  });
 });
+

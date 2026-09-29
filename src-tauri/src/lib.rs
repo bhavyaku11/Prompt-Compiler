@@ -200,6 +200,38 @@ async fn get_backend_url(
     }
 }
 
+/// Launch external browser (Google Chrome preferred, with system default fallback).
+#[tauri::command]
+async fn open_in_browser(url: String) -> Result<(), String> {
+    if !url.starts_with("http://") && !url.starts_with("https://") {
+        return Err("Invalid URL scheme. Expected http:// or https://".to_string());
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        // Try opening in Google Chrome first
+        let status = std::process::Command::new("open")
+            .args(["-a", "Google Chrome", &url])
+            .status();
+
+        if let Ok(exit_status) = status {
+            if exit_status.success() {
+                return Ok(());
+            }
+        }
+
+        // Fallback to default browser
+        let _ = std::process::Command::new("open").arg(&url).status();
+        Ok(())
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = std::process::Command::new("xdg-open").arg(&url).status();
+        Ok(())
+    }
+}
+
 // ── Entry point ───────────────────────────────────────────────────────────────
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -216,7 +248,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(Arc::clone(&sidecar_state))
-        .invoke_handler(tauri::generate_handler![get_backend_url])
+        .invoke_handler(tauri::generate_handler![get_backend_url, open_in_browser])
         .setup(move |app| {
             let app_handle = app.handle().clone();
             let state = Arc::clone(&sidecar_state_setup);

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@clerk/react';
+import { useAuth, GoogleOneTap } from '@clerk/react';
 import { WifiOff, AlertTriangle, RotateCcw, ArrowLeft } from 'lucide-react';
 import AuthSwitch from '@/components/ui/auth-switch';
+import { isTauri } from '@/api/tauri-bridge';
 
 export function AuthView() {
   const navigate = useNavigate();
@@ -35,13 +36,25 @@ export function AuthView() {
   }, [isLoaded]);
 
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
+    const desktopToken = typeof window !== 'undefined' ? sessionStorage.getItem('desktop_auth_token') : null;
+    const justSignedOut = typeof window !== 'undefined' ? sessionStorage.getItem('pc_signed_out') : null;
+    if (justSignedOut) {
+      if (!isSignedIn) {
+        sessionStorage.removeItem('pc_signed_out');
+      }
+      return;
+    }
+    if ((isLoaded && isSignedIn) || desktopToken) {
       navigate('/studio', { replace: true });
     }
   }, [isLoaded, isSignedIn, navigate]);
 
+  const desktopToken = typeof window !== 'undefined' ? sessionStorage.getItem('desktop_auth_token') : null;
+  const justSignedOut = typeof window !== 'undefined' ? sessionStorage.getItem('pc_signed_out') : null;
+  const isAuthed = !justSignedOut && ((isLoaded && isSignedIn) || Boolean(desktopToken));
+
   // If loading took too long or offline while trying to initialize Clerk
-  if (!isLoaded && (loadTimedOut || !isOnline)) {
+  if (!isLoaded && !desktopToken && (loadTimedOut || !isOnline)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-4">
         <div className="max-w-md w-full p-6 sm:p-8 rounded-3xl border border-border/80 bg-card/80 backdrop-blur-xl shadow-2xl flex flex-col items-center text-center gap-4 animate-in fade-in duration-300">
@@ -83,7 +96,7 @@ export function AuthView() {
     );
   }
 
-  if (!isLoaded) {
+  if (!isLoaded && !desktopToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <div className="flex flex-col items-center gap-3">
@@ -94,12 +107,20 @@ export function AuthView() {
     );
   }
 
-  if (isSignedIn) {
+  if (isAuthed) {
     return null;
   }
 
   return (
-    <AuthSwitch onBackToHome={() => navigate('/')} />
+    <>
+      {!isTauri() && (
+        <GoogleOneTap
+          signInForceRedirectUrl="/studio"
+          signUpForceRedirectUrl="/studio"
+        />
+      )}
+      <AuthSwitch onBackToHome={() => navigate('/')} />
+    </>
   );
 }
 

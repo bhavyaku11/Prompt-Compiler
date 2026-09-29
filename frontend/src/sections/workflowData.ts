@@ -23,7 +23,7 @@ export const workflowTopItems: JourneyItem[] = [
     title: "Target Agent",
     year: "Stage 05",
     month: "Target Agent",
-    content: "Format deterministically for your selected AI agent: Cursor, Claude Code, Cline, or Windsurf.",
+    content: "Format deterministically for your selected AI agent: Cursor, Claude Code, Antigravity, Windsurf, or Codex.",
   },
 ];
 

@@ -40,3 +40,33 @@ class User(BaseModel):
     clerk_user_id: str = Field(..., description="Verified Clerk user identifier.")
     created_at: float = Field(..., description="Creation Unix timestamp.")
     updated_at: float = Field(..., description="Last update Unix timestamp.")
+
+
+class DesktopSessionPayload(BaseModel):
+    """Payload sent when recording an established desktop session."""
+
+    token: str = Field(..., description="Verified Clerk session JWT token.")
+    user_id: str | None = Field(default=None, description="Clerk user ID.")
+    email: str | None = Field(default=None, description="Primary email address.")
+    first_name: str | None = Field(default=None, description="First name.")
+    last_name: str | None = Field(default=None, description="Last name.")
+    image_url: str | None = Field(default=None, description="Profile avatar picture URL.")
+
+
+class DesktopSessionResponse(BaseModel):
+    """Response returned when querying current desktop session status."""
+
+    authenticated: bool = Field(..., description="Whether a valid desktop session is established.")
+    token: str | None = Field(default=None, description="Active Clerk session JWT token.")
+    user_id: str | None = Field(default=None, description="Clerk user ID.")
+    email: str | None = Field(default=None, description="User email address.")
+    first_name: str | None = Field(default=None, description="User first name.")
+    last_name: str | None = Field(default=None, description="User last name.")
+    image_url: str | None = Field(default=None, description="User profile picture URL.")
+
+
+class OpenBrowserPayload(BaseModel):
+    """Payload to request opening an external URL in Google Chrome or system default browser."""
+
+    url: str = Field(..., description="The URL to open.")
+

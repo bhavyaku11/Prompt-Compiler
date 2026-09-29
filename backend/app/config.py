@@ -108,10 +108,13 @@ class Settings:
     KNOWLEDGE_SOURCE_DIVERSITY_MIN_SCORE_RATIO: float = _get_env_float("KNOWLEDGE_SOURCE_DIVERSITY_MIN_SCORE_RATIO", 0.8)
     CLERK_SECRET_KEY: str | None = os.getenv("CLERK_SECRET_KEY")
     CLERK_JWT_KEY: str | None = os.getenv("CLERK_JWT_KEY", DEFAULT_CLERK_JWT_KEY)
-    CLERK_PUBLISHABLE_KEY: str | None = os.getenv("CLERK_PUBLISHABLE_KEY")
+    CLERK_PUBLISHABLE_KEY: str | None = os.getenv(
+        "CLERK_PUBLISHABLE_KEY",
+        "pk_test_bW9kZWwtY29icmEtNzA4Ni5jbGVyay5hY2NvdW50cy5kZXYk",
+    )
     CLERK_AUTHORIZED_PARTIES: str = os.getenv(
         "CLERK_AUTHORIZED_PARTIES",
-        "http://localhost:5173,tauri://localhost,http://tauri.localhost",
+        "http://localhost:5173,tauri://localhost,http://tauri.localhost,http://127.0.0.1:18000,http://localhost:18000,http://127.0.0.1:18001,http://localhost:18001,http://127.0.0.1:8000,http://localhost:8000",
     )
 
     @property

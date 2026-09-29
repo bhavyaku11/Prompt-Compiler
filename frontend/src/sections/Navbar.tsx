@@ -6,14 +6,33 @@ import { GithubIcon } from '@/components/ui/icons';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { MagneticButton } from '@/components/ui/magnetic-button';
 import { Logo } from '@/components/ui/Logo';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { signOutApp, getDesktopUser, getDesktopToken, type DesktopUser } from '@/api/auth';
 
 export const Navbar = () => {
   const navigate = useNavigate();
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isSignedIn } = useAuth();
   const { user } = useUser();
   const { signOut } = useClerk();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const [desktopUser, setDesktopUser] = useState<DesktopUser | null>(() => getDesktopUser());
+  const [desktopToken, setDesktopToken] = useState<string | null>(() => getDesktopToken());
+
+  // Listen for storage changes or sign-in / sign-out events across windows and sessions
+  useEffect(() => {
+    const syncUser = () => {
+      setDesktopUser(getDesktopUser());
+      setDesktopToken(getDesktopToken());
+    };
+    window.addEventListener('prompt-compiler:signed-out', syncUser);
+    window.addEventListener('storage', syncUser);
+    return () => {
+      window.removeEventListener('prompt-compiler:signed-out', syncUser);
+      window.removeEventListener('storage', syncUser);
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -29,6 +48,41 @@ export const Navbar = () => {
     };
   }, [isMenuOpen]);
 
+  // Compute unified user profile from Clerk user or cached Desktop session
+  const activeUser = user
+    ? {
+        fullName:
+          user.fullName ||
+          `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+          user.username ||
+          user.primaryEmailAddress?.emailAddress?.split('@')[0],
+        firstName: user.firstName || user.username,
+        email: user.primaryEmailAddress?.emailAddress || '',
+        imageUrl: user.imageUrl || null,
+      }
+    : desktopUser
+    ? {
+        fullName:
+          `${desktopUser.firstName || ''} ${desktopUser.lastName || ''}`.trim() ||
+          desktopUser.email?.split('@')[0] ||
+          'Developer',
+        firstName: desktopUser.firstName,
+        email: desktopUser.email || '',
+        imageUrl: desktopUser.imageUrl || null,
+      }
+    : null;
+
+  const isAuthenticated = Boolean(isSignedIn && user) || Boolean(desktopToken && activeUser);
+
+  const handleSignOut = async () => {
+    setIsMenuOpen(false);
+    await signOutApp(signOut, () => {
+      setDesktopUser(null);
+      setDesktopToken(null);
+      navigate('/');
+    });
+  };
+
   return (
     <header className="relative z-20 flex items-center justify-between px-6 py-3.5 md:px-12 md:py-4.5 max-w-7xl mx-auto w-full">
       {/* Brand / Logo */}
@@ -38,14 +92,9 @@ export const Navbar = () => {
         className="flex items-center gap-3 cursor-pointer group transition-colors duration-200"
       >
         <Logo size="lg" />
-        <div className="flex flex-col">
-          <span className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
-            Prompt Compiler
-            <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-200/80 dark:bg-white/10 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-white/15 hidden sm:inline-block">
-              Local First
-            </span>
-          </span>
-        </div>
+        <span className="text-lg font-bold tracking-tight text-foreground">
+          Prompt Compiler
+        </span>
       </div>
 
       {/* Navigation Actions */}
@@ -56,7 +105,7 @@ export const Navbar = () => {
         {/* GitHub link with 3D Magnetic Floating Effect */}
         <MagneticButton
           as="a"
-          href="https://github.com/bhavyaku11"
+          href="https://github.com/bhavyaku11/Prompt-Compiler"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="GitHub Repository"
@@ -68,7 +117,7 @@ export const Navbar = () => {
         </MagneticButton>
 
         {/* Profile Picture when logged in, or Login Button when logged out */}
-        {isLoaded && isSignedIn && user ? (
+        {isAuthenticated && activeUser ? (
           <div className="relative" ref={menuRef}>
             <MagneticButton
               as="button"
@@ -78,18 +127,12 @@ export const Navbar = () => {
               aria-expanded={isMenuOpen}
               className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-neutral-300 dark:border-white/20 bg-neutral-100/90 dark:bg-white/5 p-0.5 overflow-hidden shadow-sm transition-all duration-200 hover:scale-105 hover:border-neutral-400 dark:hover:border-white/40 cursor-pointer focus:outline-none"
             >
-              {user.imageUrl ? (
-                <img
-                  src={user.imageUrl}
-                  alt={user.fullName || user.primaryEmailAddress?.emailAddress || "Profile"}
-                  className="h-full w-full rounded-full object-cover pointer-events-none"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="h-full w-full rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 flex items-center justify-center font-bold text-xs font-mono">
-                  {(user.firstName?.[0] || user.primaryEmailAddress?.emailAddress?.[0] || 'U').toUpperCase()}
-                </div>
-              )}
+              <UserAvatar
+                imageUrl={activeUser.imageUrl}
+                name={activeUser.fullName}
+                email={activeUser.email}
+                size="md"
+              />
             </MagneticButton>
 
             {/* Dropdown Menu */}
@@ -100,24 +143,18 @@ export const Navbar = () => {
               >
                 {/* User Info Header */}
                 <div className="flex items-center gap-2.5 pb-2.5 border-b border-neutral-100 dark:border-white/10">
-                  {user.imageUrl ? (
-                    <img
-                      src={user.imageUrl}
-                      alt={user.fullName || "User"}
-                      className="h-9 w-9 rounded-full object-cover border border-neutral-200 dark:border-white/20"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="h-9 w-9 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 flex items-center justify-center font-bold text-xs">
-                      {(user.firstName?.[0] || 'U').toUpperCase()}
-                    </div>
-                  )}
+                  <UserAvatar
+                    imageUrl={activeUser.imageUrl}
+                    name={activeUser.fullName}
+                    email={activeUser.email}
+                    size="lg"
+                  />
                   <div className="flex flex-col min-w-0">
                     <span className="text-xs font-semibold text-foreground truncate">
-                      {user.fullName || user.firstName || "Architect"}
+                      {activeUser.fullName || "Developer"}
                     </span>
                     <span className="text-[11px] font-mono text-muted-foreground truncate">
-                      {user.primaryEmailAddress?.emailAddress || ""}
+                      {activeUser.email || ""}
                     </span>
                   </div>
                 </div>
@@ -139,11 +176,7 @@ export const Navbar = () => {
 
                   <button
                     type="button"
-                    onClick={async () => {
-                      setIsMenuOpen(false);
-                      await signOut();
-                      navigate('/');
-                    }}
+                    onClick={handleSignOut}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors w-full text-left cursor-pointer"
                     role="menuitem"
                   >

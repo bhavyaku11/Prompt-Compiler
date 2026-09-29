@@ -363,6 +363,91 @@ class TestDesktopAuthSessionOfflineStrategy(BaseAuthTestCase):
         self.assertEqual(auth_user.user_id, "user_tauri_123")
 
 
+class TestDesktopAuthLoopback(BaseAuthTestCase):
+    """Test suite for desktop browser OAuth loopback endpoints."""
+
+    def setUp(self):
+        self.client = TestClient(app)
+
+    def test_google_start_serves_html_with_account_selection(self):
+        """Verify GET /api/auth/google-start serves HTML with select_account and Clerk script."""
+        res = self.client.get("/api/auth/google-start")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("text/html", res.headers["content-type"])
+        self.assertIn("select_account", res.text)
+        self.assertIn("Prompt Compiler", res.text)
+        self.assertIn("@clerk/clerk-js", res.text)
+
+    def test_sso_callback_serves_html(self):
+        """Verify GET /api/auth/sso-callback serves HTML page with Clerk callback handler."""
+        res = self.client.get("/api/auth/sso-callback")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("text/html", res.headers["content-type"])
+        self.assertIn("handleRedirectCallback", res.text)
+        self.assertIn("/api/auth/desktop-session", res.text)
+
+    def test_open_browser_rejects_invalid_scheme(self):
+        """Verify POST /api/auth/open-browser rejects non-http/https schemes."""
+        res = self.client.post("/api/auth/open-browser", json={"url": "javascript:alert(1)"})
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("Invalid URL scheme", res.json()["detail"])
+
+    def test_desktop_session_lifecycle(self):
+        """Verify full desktop session lifecycle: set, get, and delete."""
+        from app.auth import auth_service
+
+        orig_settings = auth_service.settings
+        try:
+            auth_service.settings = Settings(
+                CLERK_JWT_KEY=self.public_pem,
+                CLERK_AUTHORIZED_PARTIES="http://localhost:5173,http://127.0.0.1:18000",
+            )
+            valid_token = self.create_token(
+                sub="user_desktop_test_user",
+                azp="http://127.0.0.1:18000",
+            )
+
+            # Initially unauthenticated
+            get_res1 = self.client.get("/api/auth/desktop-session")
+            self.assertEqual(get_res1.status_code, 200)
+            self.assertFalse(get_res1.json()["authenticated"])
+
+            # Post valid session token
+            post_res = self.client.post(
+                "/api/auth/desktop-session",
+                json={
+                    "token": valid_token,
+                    "user_id": "user_desktop_test_user",
+                    "email": "test@gmail.com",
+                    "first_name": "Test",
+                    "last_name": "User",
+                },
+            )
+            self.assertEqual(post_res.status_code, 200)
+            self.assertTrue(post_res.json()["authenticated"])
+            self.assertEqual(post_res.json()["user_id"], "user_desktop_test_user")
+            self.assertEqual(post_res.json()["email"], "test@gmail.com")
+
+            # Get session while active
+            get_res2 = self.client.get("/api/auth/desktop-session")
+            self.assertEqual(get_res2.status_code, 200)
+            self.assertTrue(get_res2.json()["authenticated"])
+            self.assertEqual(get_res2.json()["user_id"], "user_desktop_test_user")
+
+            # Delete session
+            del_res = self.client.delete("/api/auth/desktop-session")
+            self.assertEqual(del_res.status_code, 200)
+
+            # Get session after delete
+            get_res3 = self.client.get("/api/auth/desktop-session")
+            self.assertEqual(get_res3.status_code, 200)
+            self.assertFalse(get_res3.json()["authenticated"])
+
+        finally:
+            auth_service.settings = orig_settings
+
+
 if __name__ == "__main__":
     unittest.main()
+
 
