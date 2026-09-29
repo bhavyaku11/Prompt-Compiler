@@ -75,7 +75,7 @@ class Settings:
     """Application settings with environment variable override support."""
 
     APP_NAME: str = os.getenv("APP_NAME", "Prompt Compiler")
-    APP_VERSION: str = os.getenv("APP_VERSION", "0.1.0")
+    APP_VERSION: str = os.getenv("APP_VERSION", "0.1.1")
     OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
     OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen3:0.6b")
     OLLAMA_TIMEOUT: float = _get_env_float("OLLAMA_TIMEOUT", 120.0)

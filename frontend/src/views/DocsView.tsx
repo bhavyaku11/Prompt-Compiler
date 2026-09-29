@@ -258,7 +258,7 @@ export const DocsView: React.FC = () => {
               <span className="text-xs font-mono font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                 {currentDoc.badge}
               </span>
-              <span className="text-xs text-muted-foreground font-mono">Prompt Compiler v0.1.0</span>
+              <span className="text-xs text-muted-foreground font-mono">Prompt Compiler v0.1.1</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
               {currentDoc.title}
