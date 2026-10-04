@@ -89,6 +89,7 @@ export default function AuthSwitch({ initialSignUp = false, onBackToHome }: Auth
         password: signInPassword,
       });
 
+      
       if (result.status === "complete") {
         if (setSignInActive) {
           await setSignInActive({ session: result.createdSessionId });
