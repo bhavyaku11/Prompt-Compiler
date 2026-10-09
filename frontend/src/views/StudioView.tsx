@@ -31,6 +31,7 @@ import {
   getProjectMemories,
   getKnowledgeSources,
   ApiError,
+  isTauri,
 } from '@/api';
 
 import type {
@@ -620,6 +621,26 @@ export function StudioView() {
 
           {/* Main Content Area */}
           <div className="relative z-10 w-full max-w-4xl mx-auto px-4 py-8 sm:px-8 flex-1 flex flex-col">
+            {/* Browser Web Preview notice when local engine is unavailable in browser */}
+            {!isTauri() && !isBackendHealthy && (
+              <div className="mb-6 p-3 sm:p-4 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in duration-200">
+                <div className="flex items-center gap-2.5 text-muted-foreground">
+                  <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                  <span>
+                    <strong className="text-foreground">Browser Web Preview</strong>: Local engine is offline. Prompt compilation and local project memory require the macOS desktop app.
+                  </span>
+                </div>
+                <a
+                  href="https://github.com/bhavyaku11/Prompt-Compiler"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-border text-foreground font-semibold text-xs hover:bg-muted transition-colors shrink-0"
+                >
+                  <span>Get Desktop App</span>
+                </a>
+              </div>
+            )}
+
             {/* Case A: Active Interview Session */}
             {activeInterviewSession && !isCompiling && (
               <div className="flex-1 flex flex-col justify-center my-auto">

@@ -1,6 +1,6 @@
 import { Component, useEffect, type ReactNode } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthenticateWithRedirectCallback, useAuth } from '@clerk/react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { AuthenticateWithRedirectCallback, ClerkProvider, useAuth } from '@clerk/react';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LandingView } from '@/views/LandingView';
@@ -8,6 +8,8 @@ import { AuthView } from '@/views/AuthView';
 import { StudioView } from '@/views/StudioView';
 import { DocsView } from '@/views/DocsView';
 import { setAuthTokenGetter } from '@/api/client';
+
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -67,6 +69,43 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
+function ClerkProviderWithRouter({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
+
+  if (!PUBLISHABLE_KEY) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#08080c] text-[#f8fafc] px-4">
+        <div className="max-w-md w-full p-8 rounded-3xl border border-white/10 bg-[#13131b] shadow-2xl flex flex-col items-center text-center gap-4">
+          <div className="h-12 w-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center">
+            <AlertTriangle className="h-6 w-6" />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="text-lg font-bold tracking-tight text-white">Missing Configuration</h2>
+            <p className="text-xs text-neutral-400 leading-relaxed font-mono">
+              Missing VITE_CLERK_PUBLISHABLE_KEY in environment variables.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      routerPush={(to) => navigate(to)}
+      routerReplace={(to) => navigate(to, { replace: true })}
+      signInUrl="/auth"
+      signUpUrl="/auth"
+      signInFallbackRedirectUrl="/studio"
+      signUpFallbackRedirectUrl="/studio"
+      afterSignOutUrl="/auth"
+    >
+      {children}
+    </ClerkProvider>
+  );
+}
+
 function AuthTokenSync() {
   const { getToken, isSignedIn } = useAuth();
 
@@ -100,25 +139,29 @@ export function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <AuthTokenSync />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<LandingView />} />
-            <Route path="/auth" element={<AuthView />} />
-            <Route path="/studio" element={<StudioView />} />
-            <Route path="/docs" element={<DocsView />} />
-            <Route path="/docs/:section" element={<DocsView />} />
-            <Route
-              path="/sso-callback"
-              element={
-                <AuthenticateWithRedirectCallback
-                  signUpForceRedirectUrl="/studio"
-                  signInForceRedirectUrl="/studio"
-                />
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <ClerkProviderWithRouter>
+            <AuthTokenSync />
+            <Routes>
+              <Route path="/" element={<LandingView />} />
+              <Route path="/auth" element={<AuthView />} />
+              <Route path="/sign-in" element={<Navigate to="/auth" replace />} />
+              <Route path="/sign-up" element={<Navigate to="/auth" replace />} />
+              <Route path="/studio" element={<StudioView />} />
+              <Route path="/docs" element={<DocsView />} />
+              <Route path="/docs/:section" element={<DocsView />} />
+              <Route
+                path="/sso-callback"
+                element={
+                  <AuthenticateWithRedirectCallback
+                    signUpForceRedirectUrl="/studio"
+                    signInForceRedirectUrl="/studio"
+                  />
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </ClerkProviderWithRouter>
         </BrowserRouter>
       </ThemeProvider>
     </ErrorBoundary>
@@ -126,5 +169,6 @@ export function App() {
 }
 
 export default App;
+
 
 

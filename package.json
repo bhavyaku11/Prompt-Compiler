@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.1",
   "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
     "tauri": "tauri"
   },
   "devDependencies": {
