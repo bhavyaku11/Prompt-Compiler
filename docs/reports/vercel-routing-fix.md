@@ -210,16 +210,29 @@ The following native desktop aspects were reviewed and confirmed untouched:
   - `frontend/tests/routing_and_rewrites_test.mjs`
   - `docs/reports/vercel-routing-fix.md`
 - **Commit Message:** `fix(vercel): support direct SPA route loading`
-- **Commit Hash:** `0510a42`
-- **Push Target:** `origin/main`
+- **Commit Hash:** `4d4b9c7`
+- **Push Target:** `origin/main` (Pushed successfully to `https://github.com/bhavyaku11/Prompt-Compiler.git`)
 
 ---
 
-## 11. Remaining Limitations
+## 11. Live Vercel Deployment Verification
 
-1. **Vercel Dashboard Verification:**
-   - Direct API or web UI access to the Vercel dashboard is not available from this terminal session.
-   - Automatic deployment triggers upon pushing to GitHub `main` branch.
-   - Once pushed, Vercel initiates a production build from the updated commit. The dual root/frontend `vercel.json` configuration ensures seamless deployment under both configuration schemes.
+- **Deployment URL:** `https://prompt-compiler-eta.vercel.app`
+- **Live HTTP Status Verification (curl probe):**
+  - `GET /` -> `200 (text/html; charset=utf-8)`
+  - `GET /auth` -> `200 (text/html; charset=utf-8)` (SPA rewrite verified, index.html served, no 404)
+  - `GET /studio` -> `200 (text/html; charset=utf-8)`
+  - `GET /sign-in` -> `200 (text/html; charset=utf-8)`
+  - `GET /sign-up` -> `200 (text/html; charset=utf-8)`
+  - `GET /sso-callback` -> `200 (text/html; charset=utf-8)`
+  - `GET /docs` -> `200 (text/html; charset=utf-8)`
+  - `GET /api/health` -> `404 (text/plain; charset=utf-8)` (Negative lookahead verified: `/api` requests correctly bypass HTML rewrite)
+
+---
+
+## 12. Remaining Limitations
+
+1. **Vercel Dashboard GUI Access:**
+   - Web UI access to the Vercel admin dashboard is not available from this terminal session; live edge response verification was conducted directly via HTTP/2 probes to the production URL.
 2. **Environment Variable Requirement on Vercel:**
-   - Ensure `VITE_CLERK_PUBLISHABLE_KEY` is configured in the Vercel project environment variables (Production and Preview) for full Clerk authentication on the deployed domain. If omitted, the new controlled banner displays rather than crashing.
+   - `VITE_CLERK_PUBLISHABLE_KEY` must be configured in the Vercel project environment settings for interactive sign-in/up sessions. If omitted, the new controlled banner displays rather than crashing into a black screen.
