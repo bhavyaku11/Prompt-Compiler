@@ -11,6 +11,7 @@ import httpx
 from app.config import settings
 
 
+
 class EmbeddingError(Exception):
     """Base exception for all embedding-related errors."""
 
