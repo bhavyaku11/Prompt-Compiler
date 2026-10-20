@@ -14,7 +14,6 @@ import shutil
 import subprocess
 import sys
 
-
 def get_repo_root() -> str:
     """Resolve the repository root directory."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
