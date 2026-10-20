@@ -4,6 +4,7 @@ import os
 from dataclasses import dataclass
 from dotenv import load_dotenv
 
+
 # Load environment variables from a local .env file if present
 load_dotenv()
 
